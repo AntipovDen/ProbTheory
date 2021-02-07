@@ -1,0 +1,17 @@
+Videos
+*.pdf 
+*.cls 
+*.sty 
+*.bst 
+*.aux 
+*.auxlock 
+*.toc
+*.blg
+*.bbl
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.nav
+*.snm

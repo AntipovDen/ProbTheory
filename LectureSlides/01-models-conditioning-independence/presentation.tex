@@ -1,0 +1,127 @@
+\documentclass[hyperref=unicode,graphics=pdflatex,13pt,xcolor={usenames,dvipsnames}]{beamer}
+
+
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[noend]{algorithmic}
+\usepackage{algorithm}
+\usepackage{xspace}
+\usepackage[algo2e,ruled,vlined,linesnumbered]{algorithm2e}
+\let\oldnl\nl% Store \nl in \oldnl
+\newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}% Remove line number for one line
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{wasysym} %smiles
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{statistics}
+\usetikzlibrary{calc}
+
+
+
+
+\mode<presentation>
+{
+  % \usetheme{Goettingen}
+%  \usecolortheme{crane}
+  \setbeamercovered{invisible}
+%  \useoutertheme{infolines}
+%  \setbeamertemplate{headline}{} % removes the headline that infolines inserts
+}
+
+\graphicspath{{../../../files/},{pic/}}
+
+\setbeamertemplate{frametitle continuation}{(\insertcontinuationcount)}
+\setbeamertemplate{footline}[text line]
+{
+  % \leavevmode%
+  \hbox{%
+    % \hspace{3mm}
+    \begin{beamercolorbox}[ht=2.25ex,dp=1ex,left,wd=0.18\textwidth]{author in head/foot}%
+        \usebeamerfont{author in head/foot}
+        \insertshortauthor
+    \end{beamercolorbox}%    
+    \begin{beamercolorbox}[ht=2.25ex,dp=1ex,left,wd=0.63\textwidth]{title in head/foot}%
+        \usebeamerfont{title in head/foot}
+        \insertshorttitle
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[ht=2.25ex,dp=1ex,right,wd=0.2\textwidth]{framenumber}%
+        \insertframenumber{}
+        \hspace*{2ex} 
+    \end{beamercolorbox}
+  }%
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize/enumerate body begin}{\normalsize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\normalsize}
+\setbeamersize{text margin left=5mm,text margin right=5mm} 
+% \setbeamerfont{page number in head/foot}{size=\large}
+% \beamertemplatenavigationsymbolsempty
+
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\newcommand\highlight[1]{{\color{blue}{#1}}}
+\newcommand\red[1]{{\color{red}{#1}}}
+
+\deftranslation[to=russian]{Theorem}{Теорема}
+
+\title[Вероятностные модели, условные вероятности и независимость]{Вероятностные модели, условные вероятности и независимость}
+
+\author[Антипов Д. С.]
+{Антипов Денис Сергеевич}
+\institute{
+Университет ИТМО, Санкт-Петербург, Россия\\
+~\\
+}
+\date[]{\includegraphics[height=2cm]{itmo-dots-en-small.pdf} \\
+11 февраля 2021 г.}
+
+
+\begin{document}
+
+\begin{frame}[noframenumbering,plain]
+%   \advance\textwidth2cm
+% \hsize\textwidth
+% \columnwidth\textwidth
+  \titlepage
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{О лекторе}
+  Обращаться --- по имени, можно на ``ты''
+  \begin{itemize}
+    \item PhD in computer science (Университет ИТМО и {\'E}cole Polytechnique)
+    \item Занимаюсь теорией эволюционных вычислений
+    \item Раньше вел матан, курс по теорверу --- впервые
+    \item Контакты:
+    \begin{itemize}
+      \item telegram: @antipovden
+      \item email: antipovden@yandex.ru
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{О курсе}
+  \begin{itemize}
+    \item За основу взят курс MIT
+  \end{itemize}
+  
+
+\end{frame}
+
+
+
+\end{document}
