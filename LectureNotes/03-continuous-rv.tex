@@ -1,0 +1,712 @@
+\documentclass[12pt]{article}
+
+\usepackage{a4wide}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[russian]{babel}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{pgfplots}
+\usepgfplotslibrary{statistics}
+\usetikzlibrary{decorations.pathreplacing,calc,tikzmark, patterns,arrows.meta}
+
+\usepackage{xspace}
+
+\usepackage{mathtools}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+\newcommand\N{\mathbb{N}}
+\newcommand\R{\mathbb{R}}
+\newcommand\eps{\varepsilon}
+\DeclareMathOperator{\Bin}{Bin}
+\DeclareMathOperator{\Geom}{Geom}
+\DeclareMathOperator{\pow}{pow}
+\DeclareMathOperator{\Bern}{Bern}
+\DeclareMathOperator{\Var}{Var}
+
+
+\title{Лекция 3. Остаток про дискретные с.в. и введение в непрерывные}
+
+\begin{document}
+\maketitle
+
+
+\section{Случайный вектор}
+
+  \textbf{Несколько с.в. (случайный вектор)}
+
+  \emph{Совместная} функция вероятностей 
+  \begin{align*}
+    p_{X, Y}(x, y) = \Pr(X = x \cap Y = y)
+  \end{align*}
+
+  \emph{Маргинальные} функции вероятностей
+  \begin{align*}
+    p_X(x) &= \sum_y p_{X, Y}(x, y) \\
+    p_Y(y) &= \sum_x p_{X, Y}(x, y)
+  \end{align*}
+
+
+
+  \textbf{Пример случайного вектора}
+  В клетках --- $p_{X, Y}(x, y)$
+  \begin{center}
+    \begin{tikzpicture}
+      \draw [step = 1] (0, 0) grid (4, 4);
+      \node [left = 1cm] at (0, 2) {$Y$};
+      \node [below = 1cm] at (2, 0) {$X$};
+
+      \node [left] at (0, 0.5) {$1$};
+      \node [left] at (0, 1.5) {$2$};
+      \node [left] at (0, 2.5) {$3$};
+      \node [left] at (0, 3.5) {$4$};
+
+      \node [below] at (0.5, 0) {$1$};
+      \node [below] at (1.5, 0) {$2$};
+      \node [below] at (2.5, 0) {$3$};
+      \node [below] at (3.5, 0) {$4$};
+
+      \node at (0.5, 3.5) {$\frac{1}{20}$};
+      \node at (0.5, 2.5) {$\frac{2}{20}$};
+      \node at (1.5, 3.5) {$\frac{2}{20}$};
+      \node at (1.5, 2.5) {$\frac{4}{20}$};
+      \node at (1.5, 1.5) {$\frac{1}{20}$};
+      \node at (1.5, 0.5) {$\frac{1}{20}$};
+      \node at (2.5, 3.5) {$\frac{2}{20}$};
+      \node at (2.5, 2.5) {$\frac{1}{20}$};
+      \node at (2.5, 1.5) {$\frac{3}{20}$};
+      \node at (3.5, 2.5) {$\frac{2}{20}$};
+      \node at (3.5, 1.5) {$\frac{1}{20}$};
+
+        \draw [red, thick, ->] (0.2, 1.2) -- (5, 1.2) node [pos=1.0, right, red] {$p_Y(2) = \frac{5}{20}$};
+        \node [above, red] at (4.5, 1.2) {$\Sigma$};
+      
+        \draw [blue, thick, ->] (1.2, 3.8) -- (1.2, -0.5) node [pos=1.0, below, blue] {$p_X(2) = \frac{8}{20}$};
+        \node [left, blue] at (1.2, -0.25) {$\Sigma$};
+    \end{tikzpicture}
+  \end{center}
+  
+  \emph{NB:} все работает точно также и для большего числа с.в.
+
+
+\section{Линейность матожидания}
+
+  \textbf{Линейность матожидания (опять)}
+  Теперь у нас есть возможность смотреть \emph{$Z = g(X, Y)$}
+  
+  \begin{align*}
+    p_Z(z) = \Pr(g(X, Y) = z) = \sum_{(x, y): g(x, y) = z} p_{X, Y}(x, y)
+  \end{align*}
+  
+  \begin{align*}
+    E(Z) = \sum_x \sum_y g(x, y) p_{X, Y}(x, y)
+  \end{align*}
+
+  
+  Пусть $Z = X + Y$ как вычислить ее матожидание? Хорошо, что оно \emph{линейно}
+
+  \begin{center}
+    \begin{tikzpicture}[rounded corners]
+      \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+      \begin{minipage}{0.6\textwidth}
+        $$E(Z) = E(X) + E(Y)$$
+      \end{minipage}};
+    \end{tikzpicture}
+  \end{center}
+
+
+
+  \textbf{Линейность матожидания: доказательство}
+
+  \begin{align*}
+    E(Z) &= E(X + Y) = \sum_x \sum_y (x + y) p_{X, Y}(x, y) \\
+         &= \sum_x \sum_y x  p_{X, Y}(x, y) + \sum_x \sum_y  y p_{X, Y}(x, y) \\
+         &= \sum_x x \sum_y p_{X, Y}(x, y) + \sum_y y \sum_x p_{X, Y}(x, y) \\
+         &= \sum_x x p_X(x) + \sum_y y p_Y(y) \\
+         &= E(X) + E(Y)
+  \end{align*}
+
+
+
+  \textbf{Окончательная линейность матожидания}
+
+  \begin{center}
+    \begin{tikzpicture}[rounded corners]
+      \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+      \begin{minipage}{0.6\textwidth}
+        $$E\left(\sum_i a_i X_i\right) = \sum_i a_i E(X_i)$$
+      \end{minipage}};
+    \end{tikzpicture}
+  \end{center}
+
+  \emph{NB:} случайная величина может быть равна \emph{константе}, поэтому мы не рассматриваем прибавление к сумме константы
+
+
+
+  \textbf{Матожидание биномиального распределения}
+  \emph{Напоминание:} $X \sim \Bin(n, p)$, если $X$ равен числу успехов в $n$ независимых испытаниях Бернулли с вероятностью успеха $p$.
+
+   \vspace{1cm}
+
+  $X = \sum_{i = 1}^n X_i$, где все $X_i \sim \Bern(p)$
+
+  
+
+  \begin{align*}
+    E(X) = \sum_{i = 1}^n E(X_i) = \sum_{i = 1}^n p = np
+  \end{align*}
+
+  
+
+  Всегда можно посчитать \emph{в лоб}
+  \begin{align*}
+    E(X) = \sum_{i = 0}^n i \binom{n}{i}p^i(1 - p)^{n - i}
+  \end{align*}
+
+
+
+\section{С.в., условная на другой с.в.}
+
+  \textbf{Условная с.в. (на другой с.в.)}
+
+
+      Было:
+
+      $p_X(x \mid A) = \Pr(X = x \mid A)$
+
+      Стало:
+
+      $p_{X|Y}(x \mid y) = \Pr(X = x \mid Y = y)$
+
+  
+
+  \begin{center}
+    \begin{tikzpicture}[rounded corners]
+      \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+      \begin{minipage}{0.6\textwidth}
+        $$p_{X|Y}(x \mid y) = \frac{p_{X, Y}(x, y)}{p_Y(y)}$$
+      \end{minipage}};
+    \end{tikzpicture}
+  \end{center}
+  \emph{NB:} Условная вероятность определена только для $y$, у которых $p_Y(y) > 0$
+
+  
+  \begin{center}
+      \begin{tikzpicture}
+        \draw [step = 1] (0, 0) grid (4, 4);
+        \node [left = 1cm] at (0, 2) {$Y$};
+        \node [below = 1cm] at (2, 0) {$X$};
+
+        \node [left] at (0, 0.5) {$1$};
+        \node [left] at (0, 1.5) {$2$};
+        \node [left] at (0, 2.5) {$3$};
+        \node [left] at (0, 3.5) {$4$};
+
+        \node [below] at (0.5, 0) {$1$};
+        \node [below] at (1.5, 0) {$2$};
+        \node [below] at (2.5, 0) {$3$};
+        \node [below] at (3.5, 0) {$4$};
+
+        \node at (0.5, 3.5) {$\frac{1}{20}$};
+        \node at (0.5, 2.5) {$\frac{2}{20}$};
+        \node at (1.5, 3.5) {$\frac{2}{20}$};
+        \node at (1.5, 2.5) {$\frac{4}{20}$};
+        \node at (1.5, 1.5) {$\frac{1}{20}$};
+        \node at (1.5, 0.5) {$\frac{1}{20}$};
+        \node at (2.5, 3.5) {$\frac{2}{20}$};
+        \node at (2.5, 2.5) {$\frac{1}{20}$};
+        \node at (2.5, 1.5) {$\frac{3}{20}$};
+        \node at (3.5, 2.5) {$\frac{2}{20}$};
+        \node at (3.5, 1.5) {$\frac{1}{20}$};
+
+        \draw [red, thick, ->] (0.2, 1.2) -- (5, 1.2);
+      \end{tikzpicture}
+      \scalebox{0.7}{
+        \begin{tikzpicture}
+          \begin{axis}[ybar, ymin=0, ymax=1,
+            grid=major,
+            ylabel={$p_{X \mid Y}(x | 2)$},
+            xlabel={$x$}]
+            \addplot
+            [draw=blue, fill=blue] 
+            coordinates
+              {(1, 0.005) (2,0.2) (3,0.6) (4,0.2)};
+          \end{axis}
+        \end{tikzpicture}
+      }
+  \end{center}
+
+
+
+
+  \textbf{Условные случайные векторы}
+  
+
+  \begin{center}
+    \begin{tikzpicture}[rounded corners]
+      \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{align*}
+          &p_{X_1, \dots X_n \mid Y_1, \dots, Y_m}(x_1, \dots x_m \mid y_1, \dots, y_m) \\
+          &= \Pr(X_1 = x_1 \cap \dots \cap X_n = x_n \mid Y_1 = y_1 \cap \dots Y_m = y_m)
+        \end{align*}
+      \end{minipage}};
+    \end{tikzpicture}
+  \end{center}
+
+  
+  Чуть проще:
+  \begin{itemize}
+    \item $p_{X \mid Y, Z}(x \mid y, z) = \Pr(X = x \mid Y = y \cap Z = z)$
+    \item $p_{X, Y \mid Z}(x ,y \mid z) = \Pr(X = x \cap Y = y \mid Z = z)$
+  \end{itemize}
+
+  
+  \vspace{1cm}
+  Работает правило умножения:
+  \begin{itemize}
+    \item Было: $\Pr(A \cap B \cap C) = \Pr(A) \Pr(B \mid A) \Pr(C \mid A \cap B)$
+    \item Стало: $p_{X, Y, Z}(x, y, z) = p_X(x) p_{Y \mid X}(y \mid x) p_{Z \mid X, Y}(z \mid x, y)$
+  \end{itemize}
+
+
+
+
+  \textbf{Условное маотжидание}
+
+  \begin{center}
+    \begin{tikzpicture}[rounded corners]
+      \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+      \begin{minipage}{\textwidth}
+        \begin{align*}
+          E(X \mid Y = y) = \sum_x x p_{X \mid Y}(x \mid y)
+        \end{align*}
+      \end{minipage}};
+    \end{tikzpicture}
+  \end{center}
+
+  Условия просто \emph{меняют вероятностную меру}, поэтому с условными с.в. все работает так же, как и с безусловными
+
+
+
+  \textbf{Полные вероятность и матожидание}
+Формула полной вероятности (оригинал): для разбиения $\Omega$ на $A_i$
+\begin{align*}
+  p_X(x) = \sum_i \Pr(A_i) p_X(x \mid A_i) 
+\end{align*}
+ Давайте теперь скажем, что $A_i = (Y = y)$, получим
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.6\textwidth}
+      \begin{align*}
+        p_X(x) = \sum_y p_Y(y) p_{X \mid Y}(x \mid y) 
+      \end{align*}
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+ Полное матожидание --- по аналогии
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.6\textwidth}
+      \begin{align*}
+        E(X) = \sum_y p_Y(y) E(X \mid Y = y) 
+      \end{align*}
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+\emph{NB:} работает только когда ряд сходится \emph{абсолютно}
+
+
+
+\section{Независимость}
+
+  \textbf{Независимость и условная независимость с.в.}
+
+  \begin{itemize}
+    \item \emph{Напоминание}:$A$ и $B$ независимы $\Leftrightarrow \Pr(A \cap B) = \Pr(A)\Pr(B)$
+    \item Событие $A$ и с.в. $X$ независимы $\Leftrightarrow$
+    \begin{center}
+      \begin{tikzpicture}[rounded corners]
+        \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {${\forall x}\ \ \Pr(A \cap X = x) = \Pr(A) p_X(x)$};
+      \end{tikzpicture}
+    \end{center}
+    \item $X$ и $Y$ --- \emph{независимые} с.в. $\Leftrightarrow$
+    \begin{center}
+      \begin{tikzpicture}[rounded corners]
+        \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {${\forall x, y}\ \ p_{X, Y}(x, y) = p_X(x) p_Y(y)$};
+      \end{tikzpicture}
+    \end{center}
+  \end{itemize}
+
+  
+  \emph{NB:} независимость по-прежнему означает, что одно событие (или с.в.) \emph{не дает никакой информации} о другом событии (или с.в)
+
+
+
+  \textbf{Условная независимость с.в.}
+  Условие порождает новую меру $\Rightarrow$ зависимость с.в. может поменяться в зависимости от условия
+
+  
+
+
+      \begin{center}
+          \begin{tikzpicture}
+
+            \fill [red!30] (0, 0) rectangle (4, 1);
+              \fill [blue!30] (0, 2) rectangle (2, 4);
+
+            \draw [step = 1] (0, 0) grid (4, 4);
+            \node [left = 1cm] at (0, 2) {$Y$};
+            \node [below = 1cm] at (2, 0) {$X$};
+    
+            \node [left] at (0, 0.5) {$1$};
+            \node [left] at (0, 1.5) {$2$};
+            \node [left] at (0, 2.5) {$3$};
+            \node [left] at (0, 3.5) {$4$};
+    
+            \node [below] at (0.5, 0) {$1$};
+            \node [below] at (1.5, 0) {$2$};
+            \node [below] at (2.5, 0) {$3$};
+            \node [below] at (3.5, 0) {$4$};
+    
+            \node at (0.5, 3.5) {$\frac{1}{20}$};
+            \node at (0.5, 2.5) {$\frac{2}{20}$};
+            \node at (1.5, 3.5) {$\frac{2}{20}$};
+            \node at (1.5, 2.5) {$\frac{4}{20}$};
+            \node at (1.5, 1.5) {$\frac{1}{20}$};
+            \node at (1.5, 0.5) {$\frac{1}{20}$};
+            \node at (2.5, 3.5) {$\frac{2}{20}$};
+            \node at (2.5, 2.5) {$\frac{1}{20}$};
+            \node at (2.5, 1.5) {$\frac{3}{20}$};
+            \node at (3.5, 2.5) {$\frac{2}{20}$};
+            \node at (3.5, 1.5) {$\frac{1}{20}$};
+  
+          \end{tikzpicture}
+
+      \end{center}
+
+      \begin{itemize}
+        \item $X$ и $Y$, очевидно, зависимы:
+        \begin{itemize}
+          \item $p_X(1) = \frac{3}{20}$
+          \item {$p_{X \mid Y}(1, 1) = 0$}
+        \end{itemize}
+        \item Но при условии \emph{$C = (X \le 2 \cap Y \ge 3)$} становятся независимы:
+        \begin{itemize}
+          \setlength\itemsep{2pt}
+          \item $p_X(1 \mid C) = \frac{1}{3}$, $p_X(2 \mid C) = \frac{2}{3}$
+          \item $p_Y(3 \mid C) = \frac{2}{3}$, $p_Y(4 \mid C) = \frac{1}{3}$ 
+        \end{itemize}
+        \item Поэтому,
+        \begin{itemize}
+          \setlength\itemsep{2pt}
+          \item $p_{X, Y} (1, 4 \mid C) = \frac{1}{9} = p_X(1 \mid C) p_Y(4 \mid C)$
+          \item $p_{X, Y} (1, 3 \mid C) = \frac{2}{9} = p_X(1 \mid C) p_Y(3 \mid C)$
+          \item $p_{X, Y} (2, 4 \mid C) = \frac{2}{9} = p_X(2 \mid C) p_Y(4 \mid C)$
+          \item $p_{X, Y} (2, 3 \mid C) = \frac{4}{9} = p_X(2 \mid C) p_Y(3 \mid C)$
+        \end{itemize}
+      \end{itemize}
+
+  
+
+
+
+
+  \textbf{Матожидание независимых с.в.}
+
+  Пусть $X$ и $Y$ --- \emph{независимые} с.в., тогда 
+  \begin{center}
+    \begin{tikzpicture}[rounded corners]
+      \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {$E(XY) = E(X) E(Y)$};
+    \end{tikzpicture}
+  \end{center}
+
+  
+  \begin{align*}
+    E(XY) &= \sum_x \sum_y xy p_{X, Y}(x , y) = \sum_x \sum_y xy p_X(x) p_Y(y) \\
+          &= \sum_x x p_X(x) \sum_y y p_Y(y) = E(X) E(Y)
+  \end{align*}
+
+
+
+
+
+  \textbf{Дисперсия независимых с.в.}
+
+  Пусть $X$ и $Y$ --- \emph{независимые} с.в., тогда 
+  \begin{center}
+    \begin{tikzpicture}[rounded corners]
+      \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {$\Var(X + Y) = \Var(X) + \Var(Y)$};
+    \end{tikzpicture}
+  \end{center}
+
+  
+  Предположим, что $E(X) = E(Y) = 0$.
+  
+  Тогда $E(XY) = E(X)E(Y) = 0$
+  
+  \begin{align*}
+    \Var(X + Y) &= E\left((X + Y)^2\right) = E\left(X^2 + 2XY + Y^2\right) \\
+                &= E(X^2) + 2 E(XY) + E(Y^2) = E(X^2) + E(Y^2) \\
+                &= \Var(X) + \Var(Y)
+  \end{align*}
+
+
+
+  \textbf{Дисперсия биномиалки}
+  \emph{Напоминание:} $X \sim \Bin(n, p) \Leftrightarrow X = \sum_{i = 1}^n X_i$, где все $X_i \sim \Bern(p)$ --- \emph{независимы}
+
+  \begin{align*}
+    \Var(X) &= \Var\left(\sum_{i = 1}^n X_i\right) = \sum_{i = 1}^n \Var(X_i) \\
+            &= \sum_{i = 1}^n p(1 - p) = np(1 - p)
+  \end{align*}
+
+  \section{Более сложные распределения}
+
+  \textbf{Гипер-геометрическое распределение}
+
+  Эксперимент: у нас в корзине есть $N$ шаров, $D$ из которых белые, $N-D$ --- черные. Мы достаем случайные $n$ шаров (не возвращая их в корзину). $X$ --- число белых шаров, которые мы достали. Тогда $X \sim HG(D, N, n)$
+
+  Матожидание: представляем $X_i$ как сумму индикаторных величин для всех белых шаров, что он был вытащен. Вероятность успеха $p = \frac{n}{N}$
+  \begin{align*}
+      E[X] = \sum_{i \text{- белый шар}} E[X_i] = D \cdot \frac{n}{N} = \frac{nD}{N}
+  \end{align*} 
+
+  Дисперсия: 
+  \begin{align*}
+    E[X^2] &= \sum_{i \text{- белый шар}} E[X_i^2] + \sum_{i, j \text{- белые шары}} E[X_i X_j] = E[X] + D(D - 1) \cdot \frac{n}{N} \cdot \frac{n - 1}{N - 1} \\
+           &= \frac{nD(N - n)(N - D)}{N^2(N - 1)}
+  \end{align*} 
+
+  При больших $N$ очень близко к биномиальному распределению $\Bin(n, \frac{D}{N})$.
+
+  \textbf{Степенное распределение}
+
+  $X \sim \pow(u, \beta)$ значит, что мы выбираем число из $[1..u]$, причем $\Pr(X = i) \sim i^{-\beta}$. Более точно:
+
+  \begin{align*}
+      \Pr[X = i] = \begin{cases}
+          C_{u, \beta} i^{-\beta}, \text{ если } i \in [1..u],
+          0, \text{иначе.}
+      \end{cases}
+  \end{align*}
+
+  $C_{u, \beta}$ --- коэффициент нормализации
+
+  \begin{align*}
+      C_{u, \beta} = \left(\sum_{i = 1}^u i^{-\beta}\right)^{-1} = H_{u,\beta}^{-1}
+  \end{align*}
+
+  $H_{u,\beta}^{-1}$ --- обобщенное гармоническое число
+
+  Замечание: если $\beta > 1$, то $u$ может быть $+\infty$
+
+  Рассказать про приближение интегралами
+
+
+  \section{Непрерывные случайные величины}
+
+  \textbf{Определение непрерывных с.в.}
+
+  В случае с дискретными величинами:
+
+  \begin{center}
+    \begin{tikzpicture}
+        \begin{axis}[ybar, ymin=0,
+        grid=major,
+        ylabel={$p_{X}(x)$},
+        xlabel={$x$}]
+        \addplot
+        [draw=blue, fill=blue] 
+        coordinates
+            {(1, 0.1) (2, 0.2) (3,0.2) (4,0.1) (5,0.3) (6,0.1)};
+        \end{axis}
+        \node (a) [red] at (2.3, 0) {\textbf{\huge{[}}};
+        \node (b) [red] at (5.7, 0) {\textbf{\huge{]}}};
+        \node [below=1em, red] at (a) {\textbf{a}};
+        \node [below=1em, red] at (b) {\textbf{b}};
+
+        \draw [red, ultra thick] (2.3, 0) -- (5.7, 0);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{align*}
+      \Pr[a \le X \le b] = \sum_{x: a \le x \le b} p_X(x)
+  \end{align*}
+
+  Но если $X$ может принимать люые значения из этого интервала? Тогда нам нужна функция, которая показывает, сколько вероятностной массы лежит на каждом элементарном отрезке.
+
+  \begin{center}
+    \begin{tikzpicture}
+        \begin{axis}[ybar, ymin=0, ymax=0.3, xmin=-0.1, xmax=5.1,
+        grid=major,
+        ylabel={$f_{X}(x)$},
+        xlabel={$x$}]
+        \end{axis}
+        \fill [blue!20] (2, 3) to[out=0,in=180] (4, 1) to[out=0,in=180] (6, 4) -- (6, 0) -- (2, 0);
+
+        \draw [thick] (0, 1) to[out=45,in=180] (2, 3)
+                     to[out=0,in=180] (4, 1)
+                     to[out=0,in=180] (6, 4)
+                     to[out=0, in=150] (6.9, 3);
+
+        \node (a) [red] at (2, 0) {\textbf{\huge{[}}};
+        \node (b) [red] at (6, 0) {\textbf{\huge{]}}};
+        \node [below=1em, red] at (a) {\textbf{a}};
+        \node [below=1em, red] at (b) {\textbf{b}};
+
+        \draw [red, ultra thick] (2, 0) -- (6, 0);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{align}\label{eq:def-contnuous}
+      \Pr[a \le X \le b] = \int_a^b f_X(x) dx 
+  \end{align}
+
+  \emph{Определение:} Случайная величина называется непрерывной, если для нее существует такая функция $f_X(x)$, что для любых $a, b \in \R$ (где $a \le b$) верно~\eqref{eq:def-contnuous}.
+
+  $f_X(x)$ --- плотность вероятности с.в. $X$:
+
+  \begin{align*}
+      \Pr(a \le X \le a + \eps) \approx f_X(a) \cdot \varepsilon 
+  \end{align*}
+
+  Плотность вероятности --- аналог функции вероятностей для непрерывных с.в.:
+
+  \begin{itemize}
+      \item $p_X(x) \ge 0$
+      \item $\sum_x p_X(x) = 1$
+  \end{itemize}
+
+  То же самое
+  \begin{itemize}
+      \item $f_X(x) \ge 0$
+      \item $\int_{-\infty}^{+\infty} p_X(x) = 1$
+  \end{itemize}
+
+  NB:
+  
+  \begin{align*}
+      \Pr(X = a) = \Pr(a \le X \le a) = \int_a^a f_X(x) dx = 0
+  \end{align*}
+
+  Поэтому:
+  \begin{align*}
+      \Pr(a \le X \le b) = \Pr(X = a) + \Pr(X = b) + \Pr(a < X < b) = \Pr(a < X < b) 
+  \end{align*}
+
+  NB: Мы ушли от понятия событий, но у нас по-прежнему есть какая-то $\Omega$, на которой и задана с.в. $X$. Просто нам сейчас проще быть чисто в терминах с.в.
+
+  Пример: равномерное распределение
+
+  \begin{center}
+    \begin{tikzpicture}
+        \begin{axis}[ybar, ymin=0, ymax=0.3,
+        grid=major,
+        ylabel={$p_{X}(x)$},
+        xlabel={$x$}]
+        \addplot
+        [draw=blue, fill=blue] 
+        coordinates
+            {(1, 0.2) (2, 0.2) (3,0.2) (4,0.2) (5,0.2)};
+        \end{axis}
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{center}
+    \begin{tikzpicture}
+        \begin{axis}[ybar, ymin=0, ymax=0.3, xmin=0, xmax=6,
+        grid=major,
+        ylabel={$f_{X}(x)$},
+        xlabel={$x$}]
+        \end{axis}
+        \fill [blue!20] (1.15, 3.8) -- (5.7, 3.8) -- (5.7, 0) -- (1.15, 0);
+
+        \draw [ultra thick] (0, 0) -- (1.15, 0);
+        \draw [ultra thick] (1.15, 3.8) -- (5.7, 3.8);
+        \draw [ultra thick] (5.7, 0) -- (6.85, 0);
+        
+
+    \end{tikzpicture}
+  \end{center}
+
+  Обобщение: частично равномерное распределение
+
+
+  \begin{center}
+    \begin{tikzpicture}
+        \begin{axis}[ybar, ymin=0, ymax=0.4, xmin=0, xmax=6,
+        grid=major,
+        ylabel={$f_{X}(x)$},
+        xlabel={$x$}]
+        \end{axis}
+        \fill [blue!20] (1.15, 2.8) -- (3.45, 2.8) -- (3.45, 1.4) -- (4.6, 1.4) -- (4.6, 4.2) -- (5.7, 4.2) -- (5.7, 0) -- (1.15, 0);
+         
+
+        \draw [ultra thick] (0, 0) -- (1.15, 0);
+        \draw [ultra thick] (1.15, 2.8) -- (3.45, 2.8);
+        \draw [ultra thick] (3.45, 1.4) -- (4.6, 1.4);
+        \draw [ultra thick] (4.6, 4.2) -- (5.7, 4.2);
+        \draw [ultra thick] (5.7, 0) -- (6.85, 0);
+        
+
+    \end{tikzpicture}
+  \end{center}
+
+  \section{Матожидание}
+
+  Для дискретных величин:
+  \begin{align*}
+      E(X) = \sum_x x p_X(x)
+  \end{align*}
+
+  Для непрерывных: заменяем сумму на интеграл, а функцию вероятностей на плотность вероятности
+  \begin{align*}
+      E(X) = \int_{-\infty}^{+\infty} x f_X(x) dx
+  \end{align*}
+
+  Важно: интеграл должен сходиться абсолютно
+
+  \emph{Интерпретация:} центр масс вероятностной массы
+
+  \textbf{Свойства матожидания}
+
+  \begin{itemize}
+    \item $X \ge 0 \Rightarrow E[X] > 0$
+    \item $X \in [a, b] \Rightarrow E[X] \in [a, b]$
+    \item Матожидание функции от с.в.:
+    \begin{align*}
+        E(g(X)) = \int_{-\infty}^{+\infty} g(x) f_X(x) dx
+    \end{align*}
+    \item Пример
+    \begin{align*}
+        E(X^2) = \int_{-\infty}^{+\infty} x^2 f_X(x) dx
+    \end{align*}
+    \item Линейность: $E(aX + b) = aE(X) + b$
+  \end{itemize}
+
+  \section{Дисперсия}
+
+  Как и для дискретных:
+  \begin{align*}
+      \Var(X) = E((X - \mu)^2) = \int_{-\infty}^{+\infty} (x - \mu)^2 f_X(x) dx
+  \end{align*}
+
+  среднеквадратичное отклонение:
+  \begin{align*}
+      \sigma_X = \sqrt{\Var(X)}
+  \end{align*}
+
+  Свойства --- те же:
+  \begin{itemize}
+      \item $\Var(aX + b) = a^2\Var(X)$
+      \item $\Var(X) = E(X^2) - (E(X))^2$
+  \end{itemize}
+
+\end{document}
