@@ -179,6 +179,7 @@
   \emph{NB-2:} Никаких проблем с измеримостью дискретной с.в. как функции обычно нет, поэтому этот вопрос мы будем опускать
 \end{frame}
 
+\section{Функция вероятностей}
 \begin{frame}
   \frametitle{Функция вероятности}
 
@@ -203,6 +204,7 @@
   \end{itemize}
 \end{frame}
 
+\section{Известные распределения}
 \begin{frame}
   \frametitle{Примеры случайных величин}
   Если нам дано какое-то \emph{распределение} $\mathcal{D}$ и с.в. $X$ ему следует, мы пишем $X \sim \mathcal{D}$ 
@@ -222,8 +224,8 @@
   \frametitle{Распределение Бернулли}
   \begin{align*}
     X \sim \Bern(p) \Leftrightarrow \begin{cases}
-      p_X(0) = p, \\
-      p_X(1) = (1 - p), \\
+      p_X(0) = (1 - p), \\
+      p_X(1) = p, \\
       p_X(x) = 0 \text{ для всех остальных } x. 
     \end{cases}
   \end{align*}
@@ -366,7 +368,7 @@
 
 \begin{frame}
   \frametitle{Геометрическое распределение}
-  Проводим независимые эксперименты по схеме Бернулли с вероятностью успеха $p$ бесконечно много раз. $X$ --- \emph{номер первого успеха}.
+  Проводим независимые эксперименты по схеме Бернулли с вероятностью успеха $p$ до первого успешного исхода. $X$ --- \emph{число экспериментов}, которые мы проводим.
 
   \begin{align*}
     X \sim Geom(p) \Leftrightarrow X = \min\{i \in \N \mid X_i = 1\},
@@ -427,6 +429,7 @@
   для любого $n$. Если допустить, что $\Pr(X = \infty) = q > 0$, то возьмем $n \ge \log_{1 - p} q$, получим, что вероятность подсобытия больше, чем вероятность события (\emph{Противоречие} со свойствами вероятностной меры).  
 \end{frame}
 
+\section{Матожидание}
 \begin{frame}
   \frametitle{Математическое ожидание с.в.}
 
@@ -450,7 +453,9 @@
 
   \pause
   \emph{NB:} Матожидание определено только когда этот ряд \emph{абсолютно сходится}
-  \emph{NB-2:} Матожидание --- \emph{оператор} из множества с.в. в $\R$
+
+  \pause
+  \emph{NB-2:} Матожидание --- \emph{функционал} на множестве с.в.
 \end{frame}
 
 \begin{frame}
@@ -485,7 +490,7 @@
   \emph{Как посчитать $E(Y)$?}
 
   \begin{itemize}
-    \pitem по определению: $E[Y] = \sum_y y p_Y(y)$
+    \pitem по определению: $E(Y) = \sum_y y p_Y(y)$
     \pitem 
       \begin{tikzpicture}[rounded corners]
         \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {$E(Y) = \sum_x g(x)p_X(x)$};
@@ -496,7 +501,7 @@
 
   \begin{align*}
     \sum_x g(x)p_X(x) &= \sum_y \sum_{x: g(x) = y} g(x) p_X(x) \\
-                      &= \sum_y y  \sum_{x: g(x) = y} p_X(x) = \sum_y y p_Y(y) = E(y)
+                      &= \sum_y y  \sum_{x: g(x) = y} p_X(x) = \sum_y y p_Y(y) = E(Y)
   \end{align*}
 
 
@@ -526,6 +531,7 @@
 
 \end{frame}
 
+\section{Дисперсия}
 \begin{frame}
   \frametitle{Дисперсия}
 
@@ -636,7 +642,7 @@
   \begin{align*}
     \Var(X) &= E\left((X - \mu)^2\right) \\
     &= E\left(X^2 - 2X\mu + \mu^2\right) \\
-    &= E(X^2) - 2\mu^2 + \mu \\
+    &= E(X^2) - 2\mu^2 + \mu^2 \\
     &= E(X^2) - (E(X))^2 
   \end{align*}
 \end{frame}
@@ -673,6 +679,7 @@
 
 \end{frame}
 
+\section{Условные с.в.}
 \begin{frame}
   \frametitle{Условная с.в. (на событии)}
 
@@ -768,7 +775,7 @@
 
   У геометрического распределения \emph{нет памяти}. Пусть $X \sim \Geom(p)$.
   \begin{align*}
-    p_{(X - 1)}(x \mid X > 1) &= \frac{\Pr(X = x + 1 \cap X \ge 2)}{\Pr(X > 1)} = \frac{\Pr(X = x + 1)}{1 - p} \\
+    p_{(X - 1)}(x \mid X > 1) &= \frac{\Pr(X = x + 1 \cap X > 1)}{\Pr(X > 1)} = \frac{\Pr(X = x + 1)}{1 - p} \\
     &= \frac{p(1 - p)^x}{1 - p} = p(1 - p)^{x - 1} = p_X(x)
   \end{align*}
 
@@ -792,7 +799,7 @@
           &+ \Pr(X > 1) E(X - 1 \mid X > 1) \\
           &= 1 + 0 + (1 - p) E(X) \\
     pE(X) &= 1 \\
-    E(x)  &= \frac{1}{p}
+    E(X)  &= \frac{1}{p}
   \end{align*}
 
   \pause
@@ -803,6 +810,7 @@
 
 \end{frame}
 
+\section{Случайный вектор}
 \begin{frame}
   \frametitle{Несколько с.в. (случайный вектор)}
 
@@ -863,6 +871,7 @@
   \emph{NB:} все работает точно также и для большего числа с.в.
 \end{frame}
 
+\section{Линейность матожидания}
 \begin{frame}
   \frametitle{Линейность матожидания (опять)}
   Теперь у нас есть возможность смотреть \emph{$Z = g(X, Y)$} \smiley
@@ -938,7 +947,7 @@
 \end{frame}
 
 
-
+\section{С.в., условная на другой с.в.}
 \begin{frame}
   \frametitle{Условная с.в. (на другой с.в.)}
 
@@ -1099,6 +1108,7 @@
 
 \end{frame}
 
+\section{Независимость}
 \begin{frame}
   \frametitle{Независимость и условная независимость с.в.}
 
