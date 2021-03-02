@@ -9,6 +9,9 @@
 \usepackage{pgfplots}
 \usepgfplotslibrary{statistics}
 \usetikzlibrary{decorations.pathreplacing,calc,tikzmark, patterns,arrows.meta}
+\pgfmathdeclarefunction{gauss}{3}{%
+  \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
+}
 
 \usepackage{xspace}
 
@@ -294,5 +297,177 @@
   $F_X(x) = \Pr(X \le x)$ --- \emph{функция распределения} с.в. $X$ (как дискретной, так и непрерывной).
 
 
+  Как считать:
+
+  \begin{align*}
+    F_X(x) = \int_{-\infty}^x f_X(t) dt
+  \end{align*}
+
+  Легко заметить: $F_X'(x) = f_X(x)$
+
+  Пример: равномерное распределение.
+
+  \begin{center}
+    \begin{tikzpicture}
+        \begin{axis}[ymin=-0.1, ymax=1, xmin=0, xmax=5,
+        width = 0.45\textwidth,
+        grid=major,
+        ylabel={$f_{X}(x)$},
+        xlabel={$x$},
+        ultra thick]
+        \addplot[draw=blue,fill=blue!30!white] coordinates
+          {(0,0) (1,0)};
+          \addplot[draw=none, fill=blue!30!white] coordinates
+          {(1,0.33) (4,0.33)} \closedcycle;
+        \addplot[draw=blue] coordinates
+          {(1,0.33) (4,0.33)};
+        \addplot[draw=blue,fill=blue!30!white] coordinates
+          {(4,0) (5,0)};
+        \end{axis}
+    \end{tikzpicture}
+    \begin{tikzpicture}
+      \begin{axis}[ymin=-0.1, ymax=1.1, xmin=0, xmax=5,
+      width = 0.45\textwidth,
+      grid=major,
+      ylabel={$F_{X}(x)$},
+      xlabel={$x$},
+      ultra thick]
+      \addplot[draw=blue] coordinates
+        {(0,0) (1,0) (4, 1) (5, 1)};
+      \end{axis}
+  \end{tikzpicture}
+  \end{center}
+
+   Функцию распределения можно считать и для дискретной случайной величины:
+
+   \begin{center}
+    \begin{tikzpicture}
+        \begin{axis}[ybar, ymin=0, ymax=1,
+        width = 0.45\textwidth,
+        grid=major,
+        ylabel={$p_{X}(x)$},
+        xlabel={$x$}]
+        \addplot
+        [draw=blue, fill=blue] 
+        coordinates
+            {(1, 0.25) (3, 0.5) (4,0.25)};
+        \end{axis}
+    \end{tikzpicture}
+    \begin{tikzpicture}
+      \begin{axis}[ymin=-0.1, ymax=1.1, xmin=0, xmax=5,
+      width = 0.45\textwidth,
+      grid=major,
+      ylabel={$F_{X}(x)$},
+      xlabel={$x$},
+      ultra thick]
+      \addplot[draw=blue] coordinates
+        {(0,0) (1,0)};
+      \addplot[draw=blue] coordinates
+        {(1,0.25) (3,0.25)};
+      \addplot[draw=blue] coordinates
+        {(3, 0.75) (4, 0.75)};
+      \addplot[draw=blue] coordinates
+        {(4, 1) (5, 1)};
+      \addplot[only marks, draw=blue] coordinates
+        {(1,0.25) (3, 0.75) (4, 1)};
+      \end{axis}
+  \end{tikzpicture}
+  \end{center}
+
+  Свойства функции распределения:
+  \begin{itemize}
+    \item Неубывающая
+    \item $\lim_{x \to + \infty} F_X(x) = 1$
+    \item $\lim_{x \to - \infty} F_X(x) = 0$
+  \end{itemize}
+
+  \section{Нормальное распределение (распределение Гаусса)}
+
+  Очень важная штука:
+  \begin{itemize}
+    \item Важна в центральной предельной теореме
+    \item Часто на практике неизвестные распределения приближаются нормальным
+  \end{itemize}
+
+  \emph{Стандартное нормальное:} $X \sim N(0, 1) \leftrightarrow f_X(x) = \frac{1}{\sqrt{2\pi}}e^{-x^2/2}$
+
+  \begin{center}
+    \begin{tikzpicture}
+      \begin{axis}[
+      grid=major,
+      ylabel={$f_{X}(x)$},
+      xlabel={$x$}]
+      \addplot[domain=-3:3, samples=61, draw=blue, ultra thick]{gauss(x, 0, 1)};
+      \addplot[domain=-3:3, samples=61, draw=none, fill=blue!20]{gauss(x, 0, 1)} \closedcycle;
+      \end{axis}
+  \end{tikzpicture}
+  \end{center}
+
+  Откуда берется коэффициент нормализации $\frac{1}{\sqrt{2\pi}}$? Из интеграла Гаусса
+  \begin{align*}
+    \int_{-\infty}^{+\infty} e^{-x^2} dx = \sqrt{\pi}
+  \end{align*}
+
+  Свойства $N(0, 1)$:
+
+  \begin{align*}
+    E[X] = \int_{-\infty}^{+\infty} x \frac{1}{\sqrt{2\pi}}e^{-x^2/2} dx = 0,
+  \end{align*}
+  так как это интеграл нечетной функции, которая в бесконечности очень маленькая.
+
+  \begin{align*}
+    \Var(X) &= E[X^2] = \int_{-\infty}^{+\infty} x^2 \frac{1}{\sqrt{2\pi}}e^{-x^2/2} dx = \int_{-\infty}^{+\infty} x \frac{1}{\sqrt{2\pi}}e^{-x^2/2}d\frac{x^2}{2} \\
+            &= - \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{+\infty} x \frac{1}{\sqrt{2\pi}}e^{-x^2/2}de^{-x^2/2} \\
+            &= - \frac{1}{\sqrt{2\pi}} x e^{-x^2/2} \bigg|_{-\infty}^{+\infty} + \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-x^2/2} dx \\
+            &= 0 + \frac{\sqrt{2\pi}}{\sqrt{2\pi}} = 1.
+  \end{align*}
+
+  В записи $N(0, 1)$ нолик как раз обозначает матожидание, а единица --- дисперсию
+
+  Обобщенное нормальное распределение: $X \sim N(\mu, \sigma^2) \Leftrightarrow f_X(x) = \frac{1}{\sqrt{2\pi}}e^{-\frac{(x - \mu)^2}{2\sigma^2}}$
+
+  \begin{itemize}
+    \item $\mu$ --- новое матожидание, насколько мы сдвигаем ось симметрии $X$.
+    \item $\sigma$ --- новая дисперсия, насколько мы растягиваем распределение от оси симметрии.
+  \end{itemize}
+
+  \begin{center}
+    \begin{tikzpicture}
+      \begin{axis}[
+      grid=major,
+      ylabel={$f_{X}(x)$},
+      xlabel={$x$},
+      legend pos=outer north east]
+      \addplot[domain=-3:5, samples=81, draw=blue, thick]{gauss(x, 0, 1)};
+      \addlegendentry{$\mu = 0, \sigma = 1$}
+      \addplot[domain=-3:5, samples=81, draw=red, thick]{gauss(x, 2, 1)};
+      \addlegendentry{$\mu = 2, \sigma = 1$}
+
+      \addplot[domain=-3:5, samples=81, draw=none, fill=blue, fill opacity=0.2]{gauss(x, 0, 1)} \closedcycle;
+      \addplot[domain=-3:5, samples=81, draw=none, fill=red, fill opacity=0.2]{gauss(x, 2, 1)} \closedcycle;
+      \end{axis}
+  \end{tikzpicture}
+  \end{center}
+  
+  Чем меньше $\sigma$ (срежнеквадратичное отклонение), тем больше распределение сжато вокруг оси симметрии
+  \begin{center}
+    \begin{tikzpicture}
+      \begin{axis}[
+      grid=major,
+      ylabel={$f_{X}(x)$},
+      xlabel={$x$},
+      legend pos=outer north east]
+      \addplot[domain=-3:3, samples=81, draw=blue, thick]{gauss(x, 0, 1)};
+      \addlegendentry{$\mu = 0, \sigma = 1$}
+      \addplot[domain=-3:3, samples=81, draw=red, thick]{gauss(x, 0, 2)};
+      \addlegendentry{$\mu = 0, \sigma = 4$}
+      \addplot[domain=-3:3, samples=81, draw=green!40!black, thick]{gauss(x, 0, 0.5)};
+      \addlegendentry{$\mu = 0, \sigma = 0.25$}
+
+      % \addplot[domain=-3:5, samples=81, draw=none, fill=blue, fill opacity=0.2]{gauss(x, 0, 1)} \closedcycle;
+      % \addplot[domain=-3:5, samples=81, draw=none, fill=red, fill opacity=0.2]{gauss(x, 2, 1)} \closedcycle;
+      \end{axis}
+  \end{tikzpicture}
+  \end{center}
 
 \end{document}
