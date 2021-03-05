@@ -282,7 +282,7 @@
 
   Дисперсия (два раза интегрируем по частям):
   \begin{align*}
-    E[X] &= \int_0^{+\infty} x^2 \lambda e^{-\lambda x} dx = \frac{2}{\lambda}.
+    E[X^2] &= \int_0^{+\infty} x^2 \lambda e^{-\lambda x} dx = \frac{2}{\lambda}. \\
     \Var(X) &= \frac{2}{\lambda^2} - \frac{1}{\lambda^2} = \frac{1}{\lambda^2}.
   \end{align*}
 
@@ -424,7 +424,7 @@
 
   В записи $N(0, 1)$ нолик как раз обозначает матожидание, а единица --- дисперсию
 
-  Обобщенное нормальное распределение: $X \sim N(\mu, \sigma^2) \Leftrightarrow f_X(x) = \frac{1}{\sqrt{2\pi}}e^{-\frac{(x - \mu)^2}{2\sigma^2}}$
+  Обобщенное нормальное распределение: $X \sim N(\mu, \sigma^2) \Leftrightarrow f_X(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(x - \mu)^2}{2\sigma^2}}$
 
   \begin{itemize}
     \item $\mu$ --- новое матожидание, насколько мы сдвигаем ось симметрии $X$.
