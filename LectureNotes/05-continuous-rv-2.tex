@@ -1,0 +1,379 @@
+\documentclass[12pt]{article}
+
+\usepackage{a4wide}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[russian]{babel}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{pgfplots}
+\usepgfplotslibrary{statistics}
+\usetikzlibrary{decorations.pathreplacing,calc,tikzmark, patterns,arrows.meta}
+\pgfmathdeclarefunction{gauss}{3}{%
+  \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
+}
+
+\usepackage{xspace}
+
+\usepackage{mathtools}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+\newcommand\N{\mathbb{N}}
+\newcommand\R{\mathbb{R}}
+\newcommand\eps{\varepsilon}
+\DeclareMathOperator{\Bin}{Bin}
+\DeclareMathOperator{\Geom}{Geom}
+\DeclareMathOperator{\pow}{pow}
+\DeclareMathOperator{\Bern}{Bern}
+\DeclareMathOperator{\Exp}{Exp}
+\DeclareMathOperator{\Var}{Var}
+
+
+\title{Лекция 5. Непрерывные с.в., часть 2}
+
+\begin{document}
+\maketitle
+
+
+\section{Условная плотность вероятности}
+
+Напомним трактовку плотность вероятности. Это то, сколько вероятностной массы приходится на маленький интервал значений с.в.:
+
+\[f_X(x) \delta \approx \Pr(X \in [x, x + \delta])\]
+
+Но вероятностная мера может меняться при условии, что произошло событие $A$. В этом случае определяем
+
+\[f_{X\mid A} (x) \delta \approx \Pr(X \in [x, x + \delta] \mid A)\]
+
+Точное определение: плотность вероятности с.в. $X$ при условии $A$ есть такая функция $f_{X \mid A}(x)$, что для любого измеримого множества $B$ верно, что
+\begin{align*}
+  \Pr(X \in B \mid A) = \int_B f_{X \mid A}(x) dx.
+\end{align*}
+
+\emph{NB:} у нас опять просто поменялась вероятностная мера. То есть у условной плотности вероятности будут все те же свойства:
+\begin{itemize}
+  \item $f_{X \mid A}(x) \ge 0$
+  \item $\int_{-\infty}^{+\infty} f_{X \mid A} (x) dx = 1$
+ \end{itemize}
+
+ Вычисляем аналогично условной функции вероятности. Пусть $x \in A$, тогда
+
+ \begin{align*}
+  f_{X\mid A} (x) \delta &\approx \Pr(X \in [x, x + \delta] \mid A) = \frac{\Pr(X \in [x, x + \delta] \cap X \in A)}{\Pr(A)} \\
+  &= \frac{\Pr(X \in [x, x + \delta])}{\Pr(A)} \approx \frac{f_X(x) \delta}{\Pr(A)}
+ \end{align*}
+
+ Поэтому строго говоря, она вычисляется так:
+ \begin{align*}
+   f_{X\mid A}(x) = \begin{cases}
+     \frac{f_X(x)}{\Pr(A)}, &\text{ если } x \in A, \\
+     0, &\text{ иначе.}
+   \end{cases}
+ \end{align*}
+ То есть масштабируем плотность вероятности по событию $A$.
+
+ Иногда придется иметь дело с условной функцией распределения:
+
+ \begin{align*}
+   F_{X \mid A}(x) = \Pr(X \le x \mid A)
+ \end{align*}
+
+ \section{Условное матожидание}
+
+ Условное матожидание определяем аналогично:
+
+ \begin{align*}
+   E(X \mid A) = \int_{-\infty}^{+\infty} x f_{X \mid A}(x) dx
+ \end{align*}
+
+ Работает то же самое правило и для функций от с.в. (у нас просто новая плотность вероятности при условии $A$):
+ \begin{align*}
+   E(g(X) \mid A) = \int_{-\infty}^{+\infty} g(x) f_{X \mid A}(x) dx
+ \end{align*}
+
+ \section{Пример условных с.в.}
+
+ Рассмотрим частично равномерное распределение:
+ \begin{align*}
+   f_X(x)  =\begin{cases}
+     0.25, x \in [0, 2) \\
+     0.15, x \in [2, 3) \\
+     0.35, x \in [3, 4] \\
+     0, \text{ иначе.}
+   \end{cases}
+ \end{align*}
+
+
+\begin{center}
+   \begin{tikzpicture}
+    \begin{axis}[
+    grid=major,
+    ylabel={$f_{X}(x)$},
+    xlabel={$x$}]
+    
+    \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+      {(0,0.25) (2,0.25)} \closedcycle;
+    \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+      {(2,0.15) (3,0.15)} \closedcycle;
+    \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+      {(3,0.35) (4,0.35)} \closedcycle;
+    
+    \addplot[draw=blue, ultra thick] coordinates
+      {(-1,0) (0,0)};
+    \addplot[draw=blue, ultra thick] coordinates
+      {(0,0.25) (2,0.25)};
+    \addplot[draw=blue, ultra thick] coordinates
+      {(2,0.15) (3,0.15)};
+    \addplot[draw=blue, ultra thick] coordinates
+      {(3,0.35) (4,0.35)};
+    \addplot[draw=blue, ultra thick] coordinates
+      {(4,0) (5,0)};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+Пусть $A = [1, 3]$. Тогда $\Pr(A) = 0.25 \cdot 1 + 0.15 \cdot 1 = 0.4$ 
+
+\begin{center}
+  \begin{tikzpicture}
+   \begin{axis}[
+   grid=major,
+   ylabel={$f_{X}(x)$},
+   xlabel={$x$}]
+   
+   \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+     {(0,0.25) (1,0.25)} \closedcycle;
+    \addplot[draw=blue, draw=none, fill=red!20] coordinates
+     {(1,0.25) (2,0.25)} \closedcycle;
+   \addplot[draw=blue, draw=none, fill=red!20] coordinates
+     {(2,0.15) (3,0.15)} \closedcycle;
+   \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+     {(3,0.35) (4,0.35)} \closedcycle;
+   
+   \addplot[draw=blue, ultra thick] coordinates
+     {(-1,0) (0,0)};
+    \addplot[draw=blue, ultra thick] coordinates
+      {(0,0.25) (1,0.25)};
+    \addplot[draw=red, ultra thick] coordinates
+      {(1,0.25) (2,0.25)};
+   \addplot[draw=red, ultra thick] coordinates
+     {(2,0.15) (3,0.15)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(3,0.35) (4,0.35)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(4,0) (5,0)};
+   \node [red] at (axis cs:2,0.1) {$A$};
+  \end{axis}
+ \end{tikzpicture}
+\end{center}
+
+Значит, новая плотность вероятности выглядит так:
+\begin{align*}
+  f_{X \mid A}(x)  =\begin{cases}
+    \frac{0.25}{0.4} = 0.625, x \in [1, 2) \\
+    \frac{0.15}{0.4} = 0.375, x \in [2, 3) \\
+    0, \text{ иначе.}
+  \end{cases}
+\end{align*}
+
+\begin{center}
+  \begin{tikzpicture}
+   \begin{axis}[
+   grid=major,
+   ylabel={$f_{X \mid A}(x)$},
+   xlabel={$x$}]
+   
+    \addplot[draw=red, draw=none, fill=red!20] coordinates
+      {(0,0.25) (2,0.25)} \closedcycle;
+    \addplot[draw=red, draw=none, fill=red!20] coordinates
+      {(2,0.15) (3,0.15)} \closedcycle;
+    \addplot[draw=red, draw=none, fill=red!20] coordinates
+      {(3,0.35) (4,0.35)} \closedcycle;
+    
+    \addplot[draw=red, ultra thick] coordinates
+      {(-1,0) (0,0)};
+    \addplot[draw=red, ultra thick] coordinates
+      {(0,0.25) (2,0.25)};
+    \addplot[draw=red, ultra thick] coordinates
+      {(2,0.15) (3,0.15)};
+    \addplot[draw=red, ultra thick] coordinates
+      {(3,0.35) (4,0.35)};
+    \addplot[draw=red, ultra thick] coordinates
+      {(4,0) (5,0)};
+
+    \addplot[draw=blue, draw=none, fill=blue, fill opacity=0.2] coordinates
+      {(1,0.625) (2,0.625)} \closedcycle;
+    \addplot[draw=blue, draw=none, fill=blue, fill opacity=0.2] coordinates
+      {(2,0.375) (3,0.375)} \closedcycle;
+   
+    \addplot[draw=blue, ultra thick] coordinates
+      {(-1,0) (1,0)};
+    \addplot[draw=blue, ultra thick] coordinates
+      {(1,0.625) (2,0.625)};
+    \addplot[draw=blue, ultra thick] coordinates
+      {(2,0.375) (3,0.375)};
+    \addplot[draw=blue, ultra thick] coordinates
+      {(3,0) (5,0)};
+
+    \node (exp) [above] at (axis cs:1.875,0) {};
+   \end{axis}
+   
+   \node (label) at (2, -2) {Вот тут цетр масс};
+   \draw [->] (label) -- (exp);
+ \end{tikzpicture}
+\end{center}  
+
+\begin{align*}
+  E(X \mid A) = \int_1^2 t \cdot 0.625 dt + \int_2^3 t \cdot 0.375 dt = 1.875
+\end{align*}
+
+\section{Беспамятство экспоненциального распределения}
+
+Как уже говорилось, экспоненциальное распределение очень похоже на геометрическое. В том числе вот почему. Пусть продолжительность жизни лампочки $T$ следует $\Exp(\lambda)$. Следует ли поменять лампочку после того, как она проработала время $t$? Посмотрим, сколько она еще проживет, то есть распределение $T - t$ при условии $T \ge t$. 
+
+\begin{align*}
+  F_{(T - t) \mid T \ge t}(x) &= \Pr(T - t \ge x \mid T > t) = \frac{\Pr(T - t \ge x \cap T > t)}{\Pr(T > t)} \\
+  &= \frac{\Pr(T\ge x + t)}{\Pr(T > t)} = \frac{e^{-\lambda(x + t)}}{e^{-\lambda t}} = e^{-\lambda x},  
+\end{align*}
+то есть распределение точно то же, как если мы заменим лампочку на новую.
+
+\section{Полные вероятность и матожидание}
+
+Напомним: пусть есть разбиение $\Omega$ на $\{A_i\}$ (не более, чем счетное), тогда
+
+\begin{align*}
+  \Pr(B) &= \Pr(A_1) \Pr(B \mid A_1) + \dots +  \Pr(A_n) \Pr(B \mid A_n) + \dots \\
+  p_X(x) &= \Pr(A_1) p_{X \mid A_1}(x) + \dots + \Pr(A_n) p_{X \mid A_n}(x) + \dots
+\end{align*}
+
+Ничего не меняется и в непрерывном случае. Сначала функция распределения:
+\begin{align*}
+  F_X(x) = \Pr(X \le x) &= \Pr(A_1) \Pr(X \le x \mid A_1) + \dots + \Pr(A_n) \Pr(X \le x \mid A_n) + \dots \\
+  &= \Pr(A_1) F_{X \mid A_1}(x) + \dots + \Pr(A_n) F_{X \mid A_n}(x) + \dots
+\end{align*}
+
+Дифференцируем, получаем:
+\begin{align*}
+  f_X(x) = \Pr(A_1) f_{X \mid A_1}(x) + \dots + \Pr(A_n) f_{X \mid A_n}(x) + \dots
+\end{align*}
+
+Умножаем на $x$ и интегрируем по всему $\R$:
+\begin{align*}
+  E(X) = \Pr(A_1) E(X \mid A_1) + \dots + \Pr(A_n) E(X \mid A_n) + \dots
+\end{align*}
+
+Пример (который уже был): 
+
+\begin{align*}
+  f_X(x)  =\begin{cases}
+    0.25, x \in [0, 2) \\
+    0.15, x \in [2, 3) \\
+    0.35, x \in [3, 4] \\
+    0, \text{ иначе.}
+  \end{cases}
+\end{align*}
+
+
+\begin{center}
+  \begin{tikzpicture}
+   \begin{axis}[
+   grid=major,
+   ylabel={$f_{X}(x)$},
+   xlabel={$x$}]
+   
+   \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+     {(0,0.25) (2,0.25)} \closedcycle;
+   \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+     {(2,0.15) (3,0.15)} \closedcycle;
+   \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+     {(3,0.35) (4,0.35)} \closedcycle;
+   
+   \addplot[draw=blue, ultra thick] coordinates
+     {(-1,0) (0,0)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(0,0.25) (2,0.25)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(2,0.15) (3,0.15)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(3,0.35) (4,0.35)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(4,0) (5,0)};
+   \end{axis}
+ \end{tikzpicture}
+\end{center}
+
+Посчитаем матожидание
+
+\begin{align*}
+  E(X) &= \Pr(X \in [0, 2)) E(X \mid X \in [0, 2)) \\
+  &+ \Pr(X \in [2, 3)) E(X \mid X \in [2, 3)) \\
+  &+ \Pr(X \in [3, 4)) E(X \mid X \in [3, 4)) 
+\end{align*}
+
+Заметим, что на каждом отрезке матожидание -- это положение центра масс, то есть середина отрезка. Поэтому
+
+
+\begin{align*}
+  E(X) = 0.5 \cdot 1 + 0.15 \cdot 2.5 + 0.35 \cdot 3.5 = 2.1
+\end{align*}
+
+\section{Смешанные распределения}
+
+Иногда с.в. могут быть ни дискретными, ни непрерывными, например. Пусть у нас есть слеующий эксперимент. Сначала бросам честную монетку, потом, если выпал орел, то выбираем случайное число из отрезка $[0,2]$ (равномерно). Случайная величина $X$ при этом равна $1$ в случае решки и равна выбранному числу в случае орла.
+
+У данной с.в. нет функции вероятностей, как нет и плотности вероятности. Фукнция распределения все-такие есть. Как ее посчитать? По формуле полной вероятности, которая работает и для функции распределения. Пусть $A$ --- событие "выпала решка"
+
+\begin{align*}
+  F_X(x) = F_{X \mid A} (x) \Pr(A) + F_{X \mid \bar A}(x) \Pr(\bar A)
+\end{align*}
+
+Заметим, что если $A$, то $X = 1$ с вероятностью $1$. То есть, 
+\begin{align*}
+  F_{X \mid A} = \begin{cases}
+    0, x < 1 \\
+    1, x \ge 1
+  \end{cases}
+\end{align*}
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[xmin=-1, xmax=3,
+    % width = 0.45\textwidth,
+    grid=major,
+    ylabel={$F_{X \mid A}(x)$},
+    xlabel={$x$}]
+    \addplot[draw=blue, ultra thick] coordinates
+      {(-1,0) (1, 0)};
+
+    \addplot[draw=blue, ultra thick] coordinates
+      {(1,1) (3, 1)};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+А если $\bar A$, то $X$ следует равномерному распределению на отрезке $[0, 2]$.
+\begin{align*}
+  F_{X \mid \bar A} = \begin{cases}
+    0, x < 0 \\
+    x/2, x \in [0, 2] \\
+    1, x > 2
+  \end{cases}
+\end{align*}
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[xmin=-1, xmax=3,
+    % width = 0.45\textwidth,
+    grid=major,
+    ylabel={$F_{X \mid \bar A}(x)$},
+    xlabel={$x$}]
+    \addplot[draw=blue, ultra thick] coordinates
+      {(-1,0) (0,0) (2, 1) (3, 1)};
+    \end{axis}
+  \end{tikzpicture}
+  
+\end{center}
+
+
+\end{document}
