@@ -1,0 +1,251 @@
+\documentclass[12pt]{article}
+
+\usepackage{a4wide}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[russian]{babel}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{pgfplots}
+\usepgfplotslibrary{statistics,patchplots}
+\usetikzlibrary{decorations.pathreplacing,calc,tikzmark, patterns,arrows.meta}
+\pgfmathdeclarefunction{gauss}{3}{%
+  \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
+}
+\pgfmathdeclarefunction{gauss2d}{6}{%
+  \pgfmathparse{1/(#3*#6*2*pi)*exp(-((#1-#2)^2)/(2*#3^2) - ((#4-#5)^2)/(2*#6^2))}%
+}
+
+\usepackage{xspace}
+
+\usepackage{mathtools}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+\newcommand\N{\mathbb{N}}
+\newcommand\R{\mathbb{R}}
+\newcommand\eps{\varepsilon}
+\DeclareMathOperator{\Bin}{Bin}
+\DeclareMathOperator{\Geom}{Geom}
+\DeclareMathOperator{\pow}{pow}
+\DeclareMathOperator{\Bern}{Bern}
+\DeclareMathOperator{\Exp}{Exp}
+\DeclareMathOperator{\Var}{Var}
+
+
+\title{Лекция 6. Непрерывные с.в., часть 3}
+
+\begin{document}
+\maketitle
+
+
+Закончили на определении плотности вероятности с.в. $X$ при известном значении с.в. $Y$.
+
+\begin{align*}
+  \Pr(X \in A \mid Y = y) = \int_A f_{X \mid Y}(x \mid y) dx,
+\end{align*}
+И ее свойствах:
+\begin{itemize}
+  \item $f_{X \mid Y}(x \mid y) \ge 0$
+  \item $\int_{-\infty}^{+\infty} f_{X \mid Y}(x \mid y) dx = \frac{\int_{-\infty}^{+\infty} f_{X, Y}(x \mid y) dx}{f_Y(y)} = 1$
+\end{itemize}
+
+Еще раз подчеркнем, что стоит воспринимать условную плотность как срез совместной плотности по какому-то значению с.в.. Заметьте, что при этом вероятность этого среза равна нулю (одномерное множество), поэтому только терминами условности на события тут не обойтись.
+
+Работает правило умножения:
+\begin{align*}
+  f_{X, Y} (x, y) &= f_X(x) f_{Y \mid X}(y \mid x) \\
+                  &= f_Y(y) f_{X \mid Y}(x \mid y) \\
+\end{align*}
+
+А значит, работают полные вероятность и матожидание. Полная вероятность (следует из правила умножения и определения маргинальной плотности вероятности):
+\begin{align*}
+  f_X(x) = \int_{-\infty}^{+\infty} f_Y(y) f_{X \mid Y}(x\mid y) dy
+\end{align*}
+Также определено условное матожидание
+\begin{align*}
+  E(X \mid Y = y) = \int_{-\infty}^{+\infty} x f_{X \mid Y}(x \mid y) dx
+\end{align*}
+и работает теорема о полном матожидании:
+\begin{align*}
+  E(X) &= \int_{-\infty}^{+\infty} x f_{X}(x) dx = \int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} x f_Y(y) f_{X \mid Y}(x\mid y) dy dx \\
+       &= \int_{-\infty}^{+\infty}  f_Y(y) \left(\int_{-\infty}^{+\infty} x f_{X \mid Y}(x\mid y) dx\right) dy \\
+       &= \int_{-\infty}^{+\infty} f_{Y}(y)E(X \mid Y = y) dy
+\end{align*}
+
+Также можно посчитать условное матожидание функции с.в.
+\begin{align*}
+  E(g(X) \mid Y = y) = \int_{-\infty}^{+\infty} g(x) f_{X \mid Y}(x, y) dx
+\end{align*}
+
+\section{Независимость с.в.}
+
+Было у дискретных:
+
+\begin{align*}
+  p_{X, Y}(x, y) = p_X(x)p_Y(y)
+\end{align*}
+
+Логично определить непрерывные с.в. $X$ и $Y$ независимыми, если
+
+\begin{align*}
+  f_{X, Y}(x, y) = f_X(x) f_Y(y)
+\end{align*}
+
+Это автоматически подразумевает, что для всех $y$ верно, что $f_{X \mid Y}(x \mid y) = f_X(x)$.
+
+Свойства независимых с.в. те же, что и у дискретных
+\begin{itemize}
+  \item $E(XY) = E(X) E(Y)$
+  \item $\Var(X + Y) = \Var(X) + \Var(Y)$
+  \item $g(X)$ и $h(Y)$ тоже будут независимы  
+\end{itemize}
+
+\textbf{Пример независимых с.в.}
+
+Пусть есть два трамвая, которые ходят с интервалом 11 и 17 минут, независимо друг от друга. Вы приходите на остановку в случайный момент времени. Сколько ожидаемо вы будете ожидать трамвай, если вам подходит любой из двух?
+
+Определим с.в. Пусть $T_1$ --- время, через которое придет первый трамвай, а $T_2$ --- второй. Заметим, что $T_1 \sim U(0, 11)$, а $T_2 \sim U(0, 17)$, то есть
+\begin{align*}
+  F_{T_1}(t) &= \begin{cases}
+    0, t < 0 \\
+    \frac{t}{11}, t \in [0, 11] \\
+    1, t > 11,
+  \end{cases} \\
+  F_{T_2}(t) &= \begin{cases}
+    0, t < 0 \\
+    \frac{t}{17}, t \in [0, 17] \\
+    1, t > 17,
+  \end{cases}
+\end{align*}
+
+А время, которое придется провести на остановке есть $Y = \min\{T_1, T_2\}$, функция от двух независимых с.в.
+
+Определим функцию распределения $Y$.
+\begin{align*}
+  F_Y(y) &= \Pr(Y \le y) = \Pr(T_1 \le y \cup T_2 \le y) \\
+         &= 1 - \Pr(T_1 > y \cap T_2 > y) \\
+         &= 1 - \Pr(T_1 > y) \Pr(T_2 > y) = 1 - (1 - F_{T_1}(y))(1 - F_{T_2}(y))
+\end{align*}
+
+Воспользуемся полезной формулой с прошлой практики для неотрицательных с.в. (\emph{которую доказали не все})
+\begin{align*}
+  E(Y) &= \int_{0}^{+\infty} (1 - F_Y(y)) dy = \int_{0}^{+\infty} (1 - F_{T_1}(y))(1 - F_{T_2}(y))dy \\
+  &= \int_{0}^{11} \left(1 - \frac{y}{11}\right)\left(1 - \frac{y}{17}\right) dy \approx 4.31
+\end{align*}
+
+
+
+\textbf{Пример про зависимые с.в.}
+
+Есть палка длиной $\ell$. Ломаем ее в случайном месте $X\in [0, \ell]$, остаток тоже ломаем в случайном месте $Y \in [0, X]$. Какова длина остатка $Y$? Заметим, что величины зависимы: если $X \ge \ell/2$, то есть шанс, что $Y \ge \ell/2$, а иначе нет.
+
+Совместная функция распределения:
+
+\begin{align*}
+  f_{X, Y} (x, y) = f_X(x) f_{Y \mid X}(y \mid x) = \frac{1}{\ell x}
+\end{align*}
+
+Теперь можем найти плотность вероятности $Y$ и его матожидание. Для этого интегрируем совместную ПВ по всем возможным $X$, то есть от $y$ до $\ell$ 
+\begin{align*}
+  f_Y(y) = \int_y^\ell f_{X, Y} (x, y) dx = \int_0^\ell \frac{1}{\ell x} dx = \frac{1}{\ell} \ln\frac{\ell}{y}.
+\end{align*}
+
+Два способа посчитать матожидание. Первый:
+\begin{align*}
+  E(Y) = \int_0^\ell y f_Y(y)dy = \int_0^\ell \frac{y}{\ell} \ln\frac{\ell}{y} dy = \left( \frac{\ln(\ell)}{\ell} \cdot \frac{y^2}{2} - \frac{y^2 \ln(y)}{2\ell} + \frac{y^2}{4\ell}\right) \bigg|_0^\ell = \frac{\ell}{4}
+\end{align*}
+
+Второй:
+\begin{align*}
+  E(Y) = \int_0^\ell f_X(x) E(Y \mid X = x) dx = \int_0^\ell \frac{1}{\ell} \cdot \frac{x}{2} dx = \frac{x^2}{4\ell} \bigg|_0^\ell = \frac{\ell}{4}
+\end{align*}
+
+Интуитивная логика: первый раз палка ломается в среднем посередине, потом снова в среднем посередине, то есть средняя длина должна быть $\ell / 4$. Она работает не всегда, а только для $Y$, матожидание которых линейно относительно $X$. Пусть $E(Y \mid X = x) = g(x)$ тогда:
+\begin{align*}
+  E(Y) = \int_{-\infty}^{+\infty} f_X(x) E(Y \mid X = x) dx = \int_{-\infty}^{+\infty} f_X(x) g(x) dx = E(g(X)) \ne g(E(X)).
+\end{align*}
+
+\textbf{Независимые нормальные распределения}
+
+Пусть есть $X \sim N(0, 1)$ и $Y \sim N(0, 1)$, и они независимы. Тогда
+
+\begin{align*}
+  f_{X, Y}(x, y) = f_X(x) f_Y(y) = \frac{1}{\sqrt{2\pi}} e^{-x^2/2} \cdot \frac{1}{\sqrt{2\pi}} e^{-x^2/2} = \frac{1}{2\pi} \exp\left(-\frac{x^2 + y^2}{2}\right).
+\end{align*}
+
+То есть их совместная плотность вероятности пропорциональна $e^{-r^2/2}$, где $r$ --- расстояние до точки (0, 0). 
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}
+      \addplot3[
+        surf,
+        samples=30,
+        domain=-3:3,
+      ]
+      {gauss2d(x, 0, 1, y, 0, 1)};
+
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+Эквиплотные линии:
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[grid=major,
+                 ylabel={$Y$},
+                 xlabel={$X$},
+                 height=8cm,
+                 width=8cm,
+                 xmin=-3.5, xmax=3.5, ymin=-3.5, ymax=3.5]
+      \coordinate (Center) at (axis cs:0,0);
+    \end{axis}
+    \draw [ultra thick, blue] (Center) circle (2.7);
+    \draw [ultra thick, yellow] (Center) circle (1.8);
+    \draw [ultra thick, red] (Center) circle (0.9);
+\end{tikzpicture}
+\end{center}
+
+Если у нас нестандартные нормальные распределения, то бугорок может сплющиваться или растягиваться вдоль оси, и его центр будет свдигаться 
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}
+      \addplot3[
+        surf,
+        samples=30,
+        domain=-3:3,
+      ]
+      {gauss2d(x, 1, 1.5, y, -1, 0.75)};
+
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+Эквиплотные линии превратятся в эллипсы.
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[grid=major,
+                 ylabel={$Y$},
+                 xlabel={$X$},
+                 height=8cm,
+                 width=8cm,
+                 xmin=-4, xmax=6, ymin=-5, ymax=5]
+      \coordinate (Center) at (axis cs:1,-1);
+    \end{axis}
+    \draw [ultra thick, blue] (Center) ellipse (3 and 1.5);
+    \draw [ultra thick, yellow] (Center) ellipse (2 and 1);
+    \draw [ultra thick, red] (Center) ellipse (1 and 0.5);
+\end{tikzpicture}
+\end{center}
+
+Заметим, что оси эллипса должны быть направлены вдоль осей, иначе с.в. будут зависимые
+
+\section{Формула Байеса для случайных величин}
+
+\end{document}
