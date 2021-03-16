@@ -7,7 +7,7 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{pgfplots}
-\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{statistics,patchplots}
 \usetikzlibrary{decorations.pathreplacing,calc,tikzmark, patterns,arrows.meta}
 \pgfmathdeclarefunction{gauss}{3}{%
   \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
@@ -332,7 +332,7 @@
 
 Заметим, что если $A$, то $X = 1$ с вероятностью $1$. То есть, 
 \begin{align*}
-  F_{X \mid A} = \begin{cases}
+  F_{X \mid A}(x) = \begin{cases}
     0, x < 1 \\
     1, x \ge 1
   \end{cases}
@@ -355,7 +355,7 @@
 
 А если $\bar A$, то $X$ следует равномерному распределению на отрезке $[0, 2]$.
 \begin{align*}
-  F_{X \mid \bar A} = \begin{cases}
+  F_{X \mid \bar A}(x) = \begin{cases}
     0, x < 0 \\
     x/2, x \in [0, 2] \\
     1, x > 2
@@ -372,8 +372,275 @@
       {(-1,0) (0,0) (2, 1) (3, 1)};
     \end{axis}
   \end{tikzpicture}
-  
 \end{center}
 
+Итоговая функция распределения выглядит так:
+\begin{align*}
+  F_X(x) = \frac{1}{2}F_{X \mid A}(x) + \frac{1}{2} F_{X \mid \bar A}(x) = \begin{cases}
+    0, x < 0 \\
+    x/4, x \in [0, 1) \\
+    x/4 + 1/2, x \in [1, 2] \\
+    1, x > 2
+  \end{cases}
+\end{align*}
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[xmin=-1, xmax=3,
+    % width = 0.45\textwidth,
+    grid=major,
+    ylabel={$F_{X \mid \bar A}(x)$},
+    xlabel={$x$}]
+    \addplot[draw=blue, ultra thick] coordinates
+      {(-1,0) (0,0) (1, 0.25)};
+    \addplot[draw=blue, ultra thick] coordinates
+      {(1,0.75) (2,1) (3, 1)};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+\section{Векторы из непрерывных с.в.}
+
+Пусть у нас есть 2 непрерывных с.в. $X$ и $Y$. Тогда можно говорить о совместной плотности вероятности:
+\begin{align*}
+  f_{X, Y}(x, y) \delta^2 \approx \Pr(X \in [x, x + \delta] \cap Y \in [y, y + \delta])
+\end{align*}
+
+Более строго: если у нас есть такая функция $f_{X ,Y}(x ,y)$, такая что для любого измеримого множества $A \subset \R^2$ верно
+\begin{align*}
+  \Pr((X, Y) \in A) = \iint\limits_A f_{X, Y}(x, y) dx dy,
+\end{align*} 
+то с.в. $X$ и $Y$ называются совместно непрерывными, а $f_{X, Y}(x, y)$ называется их совместной плотностью вероятности 
+
+Свойства, аналогичные совместной функции вероятности, только суммы заменены интегралами:
+
+\begin{itemize}
+  \item $f_{X, Y}(x, y) \ge 0$
+  \item $\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty}  f_{X, Y}(x, y) dx dy = 1$
+\end{itemize}
+
+Как визуализировать:
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}
+      \addplot3[
+        surf,
+        samples=3,
+        domain=-1:0,
+      ]
+      {0};
+
+      
+      \addplot3[ultra thick]
+      coordinates {(-1, -1, 0) (-1, -1, 0.4)};
+      \addplot3[ultra thick]
+      coordinates {(-1, 0, 0) (-1, 0, 0.5)};
+      \addplot3[ultra thick]
+      coordinates {(0, -1, 0) (0, -1, 0.3)};
+      \addplot3[ultra thick]
+      coordinates {(0, 0, 0) (0, 0, 0.4)};
+
+      \addplot3[
+        mesh,
+        samples=12,
+        domain=-2:2,
+      ]
+      {0.1*x^2-0.1*y^2 + 0.4};
+
+      \addplot3[
+        surf,
+        samples=3,
+        domain=-1:0,
+      ]
+      {0.1*x^2-0.1*y^2 + 0.4};
+
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+Чтобы посчитать вероятность, что $X$ попадает в какое-то событие, надо просто посчитать объем подграфика на этом событии
+
+\emph{NB:} Одномерные события имеют вероятность ноль. Например, событие $Y = X$.
+
+\section{Маргинальные распределения}
+ Покажем, что 
+
+ \begin{align*}
+   \begin{cases}
+    f_X(x) &= \int_{-\infty}^{+\infty} f_{X, Y}(x, y) dy \\
+    f_Y(y) &= \int_{-\infty}^{+\infty} f_{X, Y}(x, y) dx \\
+   \end{cases}
+ \end{align*}
+
+ Для этого рассмотрим функцию распределения $X$:
+
+\begin{align*}
+  F_X(x) &= \Pr(X \le X) = \int_{-\infty}^x \left(\int_{-\infty}^{+\infty} f_{X, Y} (t, y) dy\right) dt 
+  f_X(x) &= F_X'(x) = \int_{-\infty}^{+\infty} f_{X, Y} (x, y) dy
+\end{align*}
+
+\textbf{Пример:} равномерное распределение на множестве $S$ площадью 4.5
+
+\begin{align*}
+  f_{X, Y} (x, y) = \begin{cases}
+    \frac{1}{|S|}, \text{ если } (x, y) \in S,\\
+    0, \text{ иначе}.
+  \end{cases}
+\end{align*}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[name = main, width=0.6\textwidth, height=8cm, xlabel={$x$}, ylabel={$y$}]
+      \addplot[fill=blue!20, draw=blue, ultra thick]
+      coordinates{(1, 1) (2, 1) (2, 2) (3, 2) (3, 3) (2, 4) (1, 4) (1, 1)};
+
+      \node at (axis cs:2,2.5) {\huge{$S$}};
+    \end{axis}
+    \begin{axis}[at = {(main.south west)}, yshift=-4cm, height=4cm, width=0.6\textwidth, xlabel={$x$}, ylabel={$f_X(x)$}]
+      \addplot[draw=none, fill=blue!20]
+      coordinates{(1, 2/3) (2, 2/3) (2, 4/9) (3, 1/3) (3, 0) (1, 0)}\closedcycle;
+      \addplot[draw=blue, ultra thick]
+      coordinates{(1, 2/3) (2, 2/3)};
+      \addplot[draw=blue, ultra thick]
+      coordinates{(2, 4/9) (3, 1/3)};
+    \end{axis}
+    \begin{axis}[at = {(main.south west)}, xshift=-5cm, height=8cm, width=0.3\textwidth, xlabel={$f_Y(y)$}, ylabel={$y$}]
+      \addplot[draw=none, fill=blue!20]
+      coordinates{(2/9, 1) (2/9, 2) (4/9, 2) (4/9, 3) (2/9, 4) (0, 4) (0, 1) (2/9, 1)}\closedcycle;
+      \addplot[draw=blue, ultra thick]
+      coordinates{(2/9, 1) (2/9, 2)};
+      \addplot[draw=blue, ultra thick]
+      coordinates{(4/9, 2) (4/9, 3) (2/9, 4)};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+\section{Более двух с.в. и функции от многих с.в.}
+
+Совместное распределение может быть задано на более, чем одной с.в., тогда есть плотность вероятности $f_{X, Y, Z}(x, y, z)$. Все то же самое, что было со многими дискретными с.в., только вместо сумм интегралы:
+
+\begin{itemize}
+  \item $f_{X, Y, Z}(x, y, z) \ge 0$
+  \item $\int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} f_{X, Y, Z}(x, y, z)dx dy dz = 1$
+\end{itemize}
+
+И на многих с.в. мы также можем задавать функции, которые будут по сути новыми с.в.: $Z = g(X, Y)$. Их матожидание считается так:
+
+\begin{align*}
+  E(g(X, Y)) = \int_{-\infty}^{+\infty} \int_{-\infty}^{+\infty} g(x, y) f_{X, Y}(x, y) dx dy
+\end{align*}
+
+При этом имеет место быть линейность матожидания:
+
+\begin{align*}
+  E(\sum_i a_i X_i) = \sum_i a_i E(X_i)
+\end{align*}
+
+\section{Совместная функция распределения}
+
+Для нескольких с.в. определим функцию распределения:
+
+\begin{align*}
+  F_{X, Y}(x, y) = \Pr(X \le x \cap Y \le Y) = \int_{-\infty}^{x} \left( \int_{-\infty}^{y} f_{X, Y}(s, t) dt \right) ds
+\end{align*}
+
+Также можно заметить:
+\begin{align*}
+  f_{X, Y}(x, y) = \frac{\partial^2F_{X, Y}(x, y)}{\partial x \partial y}
+\end{align*}
+
+\section{С.в., условные на других с.в.}
+
+Было в дискретном случае:
+
+\begin{itemize}
+  \item $p_{X, Y}(x, y)$ --- совместная функция вероятности
+  \item $p_{X \mid A}(x) = \frac{p_X(x)\cdot [x \in A]}{\Pr(A)}$ --- условная функция вероятности (где $[\cdot]$ --- скобка Айверсона)
+  \item $p_{X \mid Y}(x \mid y) = \frac{p_{X, Y}(x, y)}{p_Y(y)}$ --- функция вероятности $X$, условная на $Y$ (определена только для таких $y$, что $p_Y(y) > 0$)
+\end{itemize}
+
+То же самое есть для непрерывного случая:
+\begin{itemize}
+  \item $f_{X, Y}(x, y)$ --- совместная плотность вероятности
+  \item $f_{X \mid A}(x) = \frac{f_X(x)\cdot [x \in A]}{\Pr(A)}$ --- условная плотность вероятности
+  \item $f_{X \mid Y}(x \mid y) = \frac{f_{X, Y}(x, y)}{f_Y(y)}$ --- плотность вероятности $X$, условная на $Y$ (определена только для таких $y$, что $p_Y(y) > 0$)
+\end{itemize}
+
+Чуть ближе к формальному определению: 
+\begin{align*}
+  \Pr\left(X \in [x, x + \delta] \mid Y \in [y, y + \eps]\right) &= \frac{\Pr\left(X \in [x, x + \delta] \cap Y \in [y, y + \eps]\right)}{\Pr(Y \in [y, y + \eps])} \\
+  &\approx \frac{f_{X, Y}(x, y) \delta \eps}{f_Y(y) \eps} = \frac{f_{X, Y}(x, y)}{f_Y(y)} \delta
+\end{align*}
+
+И совсем формальное. Если существует такая функция $f_{X \mid Y}(x \mid y)$, что для всех $y$ и для всех $A$ верно
+
+\begin{align*}
+  \Pr(X \in A \mid Y = y) = \int_A f_{X \mid Y}(x \mid y) dx,
+\end{align*}
+то эта функция называется условной плотностью вероятности $X$ при условии $Y$.
+
+Опять при условиях у нас просто появляется новая вероятностная мера. Для всех $y: f_Y(y) > 0$ мы имеем
+\begin{itemize}
+  \item $f_{X \mid Y}(x \mid y) \ge 0$
+  \item $\int_{-\infty}^{+\infty} f_{X \mid Y}(x \mid y) dx = \frac{\int_{-\infty}^{+\infty} f_{X, Y}(x \mid y) dx}{f_Y(y)} = 1$
+\end{itemize}
+
+Из последнего видно, что стоит воспринимать условную плотность как срез совместной плотности по какому-то значению с.в.. Заметьте, что при этом вероятность этого среза равна нулю (одномерное множество), поэтому только терминами условности на события тут не обойтись.
+
+Работает правило умножения:
+\begin{align*}
+  f_{X, Y} (x, y) &= f_X(x) f_{Y \mid X}(y \mid x) \\
+                  &= f_Y(y) f_{X \mid Y}(x \mid y) \\
+\end{align*}
+
+А значит, работают полные вероятность и матожидание. Полная вероятность (следует из правила умножения):
+\begin{align*}
+  f_X(x) = \int_{-\infty}^{+\infty} f_Y(y) f_{X \mid Y}(x, y) dy
+\end{align*}
+Также определено условное матожидание
+\begin{align*}
+  E(X \mid Y = y) = \int_{-\infty}^{+\infty} x f_{X \mid Y}(x, y) dx
+\end{align*}
+и работает теорема о полном матожидании (TODO: доказать)
+\begin{align*}
+  E(X) = \int_{-\infty}^{+\infty} f_{Y}(y)E(X \mid Y = y) dy
+\end{align*}
+
+Также можно посчитать условное матожидание функции с.в.
+\begin{align*}
+  E(g(X) \mid Y = y) = \int_{-\infty}^{+\infty} g(x) f_{X \mid Y}(x, y) dx
+\end{align*}
+
+\section{Независимость с.в.}
+
+Было у дискретных:
+
+\begin{align*}
+  p_{X, Y}(x, y) = p_X(x)p_Y(y)
+\end{align*}
+
+Логично определить непрерывные с.в. $X$ и $Y$ независимыми, если
+
+\begin{align*}
+  f_{X, Y}(x, y) = f_X(x) f_Y(y)
+\end{align*}
+
+Это автоматически подразумевает, что для всех $y$ верно, что $f_{X \mid Y}(x \mid y) = f_X(x)$.
+
+Свойств независимых с.в. те же, что и у дискретных
+\begin{itemize}
+  \item $E(XY) = E(X) E(Y)$
+  \item $\Var(X + Y) = \Var(X) + \Var(Y)$
+  \item $g(X)$ и $h(Y)$ тоже будут независимы  
+\end{itemize}
+
+\textbf{Пример про зависимые с.в.}
+
+Есть палка длиной $\ell$. Ломаем ее в случайном месте $X\in [0, \ell]$, остаток тоже ломаем в случайном месте $Y \in [0, X]$. Найти:
+\begin{itemize}
+  \item $f_{X, Y}$ 
+  \item $f_Y(y)$
+  \item $E[Y]$
+\end{itemize}
 
 \end{document}
