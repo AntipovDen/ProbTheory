@@ -248,4 +248,424 @@
 
 \section{Формула Байеса для случайных величин}
 
+Напомним смысл формулы Байеса. С помощью нее мы выражаем вероятность события, которое не можем пронаблюдать ($A_i$ в формуле) через априорные оценки веротностей другого события(ий) ($B$ в формуле), которое мы можем наблюдать, после его наблюдения.
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node (formula) [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.6\textwidth}
+      \[
+        \Pr(A_i \mid B) = \frac{\Pr(A_i) \Pr(B \mid A_i)}{\sum_j \Pr(A_j) \Pr(B \mid A_j)}
+      \]
+    \end{minipage}};
+
+    \node (posterior) [text width=5cm] at (-4, -2) {Апостериорная оценка вероятности $A_i$}; 
+    \node (priorA) [text width = 4cm] at (-1, 2) {Априорная оценка вероятности $A_i$}; 
+    \node (priorB) [text width = 5.5cm] at (4, 2) {Априорная оценка условной вероятности наблюдаемого события $B$};
+    \node (fullB) [text width = 5.5cm] at (4, -2) {Полная вероятность $B$}; 
+
+    \draw [->, thick] (posterior) -- (formula.195);
+    \draw [->, thick] (priorA) -- (formula);
+    \draw [->, thick] (priorB) -- (formula.20);
+    \draw [->, thick] (fullB) -- (formula);
+  \end{tikzpicture}
+\end{center}
+
+Легко вывести из правила умножения и формулы полной вероятности для двух дискретных и двух непрерывных случанйых величин. Начнем с дискретных
+
+\begin{align*}
+  p_{X, Y}(x, y) &= p_Y(y) p_{X \mid Y}(x \mid y) \\
+                 &= p_X(x) p_{Y \mid X}(y \mid x) \\
+ \Rightarrow 
+ p_{X \mid Y}(x \mid y) &= \frac{p_X(x) p_{Y \mid X}(y \mid x)}{p_Y(y)} \\
+                        &= \frac{p_X(x) p_{Y \mid X}(y \mid x)}{\sum_x p_X(x) p_{Y \mid X}(y \mid x)}
+\end{align*}
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.6\textwidth}
+      \[
+        p_{X \mid Y}(x \mid y) = \frac{p_X(x) p_{Y \mid X}(y \mid x)}{\sum_x p_X(x) p_{Y \mid X}(y \mid x)}  
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+То же самое для непрерывных с.в., но говорим про плотности вероятности, а не про функцию вероятности, и суммы заменяем интегралами
+
+\begin{align*}
+  f_{X, Y}(x, y) &= f_Y(y) f_{X \mid Y}(x \mid y) \\
+                 &= f_X(x) f_{Y \mid X}(y \mid x) \\
+ \Rightarrow 
+ f_{X \mid Y}(x \mid y) &= \frac{f_X(x) f_{Y \mid X}(y \mid x)}{f_Y(y)} \\
+                        &= \frac{f_X(x) f_{Y \mid X}(y \mid x)}{\int_{\R} f_X(x) f_{Y \mid X}(y \mid x) dx}
+\end{align*}
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.6\textwidth}
+      \[
+        f_{X \mid Y}(x \mid y) = \frac{f_X(x) f_{Y \mid X}(y \mid x)}{\int_\R f_X(x) f_{Y \mid X}(y \mid x) dx}  
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Но иногда могут быть случаи, когда есть две с.в.: одна дискретная, другая непрерывная. Можем сделать примерно следующее. Пусть $X$ --- дискретная, а $Y$ --- непрерывная
+
+\begin{align*}
+  \Pr(X = x &\cap y \le Y \le y + \delta) \\
+  &= \Pr(X = x) \Pr (y \le Y \le Y + \delta \mid X = x) \approx p_X(x) f_{Y \mid X}(y \mid x) \delta \\
+  &= \Pr(y \le Y \le y + \delta) \Pr(X = x \mid y \le Y \le y + \delta) \approx f_Y(y) \delta p_{X \mid Y}(x \mid y)
+\end{align*}
+
+Откуда следует, что 
+\begin{align*}
+  p_X(x) f_{Y \mid X}(y \mid x) = f_Y(y) p_{X \mid Y}(x \mid y)
+\end{align*}
+
+Чтобы доказать более строго, надо просто $\delta$ устремить к нулю, тогда вместо ``$\approx$'' будет ``$=$''. Получаем две формулы.
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        p_{X \mid Y}(x \mid y) = \frac{p_X(x) f_{Y \mid X}(y \mid x)}{f_Y(y)}  
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+  \hspace{2cm}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        f_{Y \mid X}(y \mid x) = \frac{f_Y(y) p_{X \mid Y}(x \mid y)}{p_X(x)}  
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+И теперь в левую формулу можно подставить формулу полной вероятности, которая работает для $f_Y(y)$:
+
+\begin{align*}
+  f_Y(y) = \sum_{x'} p_X(x') f_{Y \mid X}(y \mid x'). 
+\end{align*}
+
+С правой чуть посложнее, но пока поверьте наслово, что
+\begin{align*}
+  p_X(x) = \int_{\R} f_Y(y') p_{X \mid Y}(x \mid y') dy. 
+\end{align*}
+
+\textbf{Пример: наблюдаем непрерывную с.в., оцениваем дискретную}
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        p_{X \mid Y}(x \mid y) = \frac{p_X(x) f_{Y \mid X}(y \mid x)}{f_Y(y)}  
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Ситуация: посылаем дискретный сигнал $X \in [-1, 1]$, но к нему добавляется шум $Z \sim N(0, 1)$. В итоге мы можем замерить только $Y = X + Z$. Давайте определим вероятности каждого варианта посланного сигнала, если изначально отправка каждого равновероятна.
+
+\begin{itemize}
+  \item $p_X(-1) = p_X(1) = \frac{1}{2}$
+  \item $Y \sim N(0, 1) + X$, то есть если $X = 1$, то $Y\mid X = 1 \sim N(1, 1)$. Аналогично $Y \mid X = -1 \sim N(-1, 1)$
+  \item Из предыдущего понимаем, что 
+  \begin{itemize}
+    \item $f_{Y \mid X}(y, 1) = \frac{1}{\sqrt{2\pi}} e^{-\frac{(y - 1)^2}{2}}$
+    \item $f_{Y \mid X}(y, -1) = \frac{1}{\sqrt{2\pi}} e^{-\frac{(y + 1)^2}{2}}$
+  \end{itemize}
+  \item $f_{Y}(y) = \frac{1}{2}f_{Y \mid X}(y, 1) + \frac{1}{2} f_{Y \mid X}(y, -1)$
+\end{itemize}
+\begin{align*}
+  p_{X \mid Y}(1 \mid y) &= \frac{\frac{1}{2} \cdot \frac{1}{\sqrt{2\pi}} e^{-\frac{(y - 1)^2}{2}}}{\frac{1}{2} \cdot \frac{1}{\sqrt{2\pi}} e^{-\frac{(y - 1)^2}{2}} + \frac{1}{2} \cdot \frac{1}{\sqrt{2\pi}} e^{-\frac{(y + 1)^2}{2}}} \\
+  &= \frac{1}{1 + e^{-\frac{(y + 1)^2 - (y - 1)^2}{2}}} = \frac{1}{1 + e^{-2y}}
+\end{align*}
+
+Иллюстрация: распределение наблюдаемого значения при разных сигналов и вероятность, что посланный сигнал равне единице, в зависимости от наблюдаемого значения
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+    grid=major,
+    ylabel={$f_{Y\mid X}(y \mid \cdot)$},
+    xlabel={$y$},
+    width = 0.8\textwidth,
+    height = 5cm,
+    legend pos = north east]
+      \addplot[domain=-5:5, samples=61, draw=blue, ultra thick]{gauss(x, 1, 1)};
+      \addlegendentry{$X = 1$};
+      \addplot[domain=-5:5, samples=61, draw=red, ultra thick]{gauss(x, -1, 1)};
+      \addlegendentry{$X = -1$};
+    \end{axis}
+  \end{tikzpicture}
+
+  \begin{tikzpicture}
+    \begin{axis}[
+    grid=major,
+    ylabel={$p_{X\mid Y}(1 \mid y)$},
+    xlabel={$y$},
+    width = 0.8\textwidth,
+    height = 5cm]
+    \addplot[domain=-5:5, samples=61, draw=blue, ultra thick]{1/(1 + e^(-2*x))};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+
+\textbf{Пример: наблюдаем дискретную с.в., оцениваем непрерывную}
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        f_{Y \mid X}(y \mid x) = \frac{f_Y(y) p_{X \mid Y}(x \mid y)}{p_X(x)}  
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Эксперимент: берем нечестную монету, бросаем ее и исходя из результата хотим оценить степень ее нечестности. Наблюдаемая с.в. $X \in \{0, 1\}$ и неизвестная с.в. $Y = \Pr(X = 1) \sim U(0, 1)$.
+
+\begin{itemize}
+  \item $f_Y(y) = 1$ на отрезке $[0, 1]$
+  \item $p_{X \mid Y} (1 \mid y) = y$
+  \item $p_{X \mid Y} (0 \mid y) = 1 - y$
+  \item $p_X(1) = \int_0^1 f_Y(y') p_{X \mid Y}(1 \mid y') dy' = \int_0^1 y' dy = \frac{y^2}{2} \big|_0^1 = \frac{1}{2}$ 
+\end{itemize}
+
+\begin{align*}
+  f_{Y \mid X}(y \mid 1) = \frac{1 \cdot y}{1/2} = 2y
+\end{align*}
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+    grid=major,
+    ylabel={$f_{Y\mid X}(y \mid \cdot)$},
+    xlabel={$y$},
+    width = 0.8\textwidth,
+    height = 5cm,
+    legend pos = north east]
+      \addplot[domain=-5:5, samples=61, draw=blue, ultra thick]{gauss(x, 1, 1)};
+      \addlegendentry{$X = 1$};
+      \addplot[domain=-5:5, samples=61, draw=red, ultra thick]{gauss(x, -1, 1)};
+      \addlegendentry{$X = -1$};
+    \end{axis}
+  \end{tikzpicture}
+
+  \begin{tikzpicture}
+    \begin{axis}[
+    grid=major,
+    ylabel={$f_{Y\mid X}(y \mid 1)$},
+    xlabel={$y$},
+    width = 0.6\textwidth,
+    height = 6cm]
+    \addplot[domain=0:1, samples=2, draw=blue, ultra thick]{2*x};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+\section{Линейные функции от с.в.}
+
+\textbf{Дискретные с.в.}
+
+Если $Y = g(X)$ и мы знаем функцию вероятности $p_X(x)$, то не соствит труда посчитать 
+\begin{align*}
+  p_Y(y) = \sum_{x: g(x) = y} p_X(x)
+\end{align*}
+
+рассмотрим простой случай: $g(x) = ax +b$ --- линейная функция. Что происходит с функцией распределения?
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[ybar, ymin=0, ymax=1,
+      grid=major,
+      ylabel={$p_{X}(x)$},
+      xlabel={$x$}]
+      \addplot
+      [draw=blue, fill=blue] 
+      coordinates
+        {(-1, 0.3) (1,0.25) (2,0.45)};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+Расмотрим сначала, например, $g(x) = 2x$. Легко понять, что функция вероятностей сохранила свою форму, просто столбики отъехали от оси $OY$ в два раза.
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[ybar, ymin=0, ymax=1,
+      grid=major,
+      ylabel={$p_{2X}(x)$},
+      xlabel={$x$}]
+        \addplot[draw=blue, fill=blue] 
+          coordinates
+          {(-2, 0.3) (2,0.25) (4,0.45)};
+        \coordinate (axis-left) at (axis cs:-0.2, 0.5);
+        \coordinate (left) at (axis cs:-2, 0.5);
+        \coordinate (axis-right) at (axis cs:0.2, 0.5);
+        \coordinate (right) at (axis cs:2, 0.5);
+    \end{axis}
+    \draw [-{Triangle[width=18pt,length=8pt]}, red, line width=10pt] (axis-left) -- (left);
+    \draw [-{Triangle[width=18pt,length=8pt]}, red, line width=10pt] (axis-right) -- (right);
+  \end{tikzpicture}
+\end{center}
+
+Если мы еще прибавим константу $b = -3$, то просто сдвинем все столбики влево на $3$.
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[ybar, ymin=0, ymax=1,
+      grid=major,
+      ylabel={$p_{2X - 3}(x)$},
+      xlabel={$x$}]
+      \addplot
+      [draw=blue, fill=blue] 
+      coordinates
+        {(-5, 0.3) (-1,0.25) (1,0.45)};
+      \coordinate (start) at (axis cs:0, 0.5);
+      \coordinate (end) at (axis cs:-4, 0.5);
+    \end{axis}
+    \draw [-{Triangle[width=18pt,length=8pt]}, red, line width=10pt] (start) -- (end);
+  \end{tikzpicture}
+\end{center}
+
+Очень похожая история с непрерывными. Рассмотрим пример.
+
+\begin{center}
+  \begin{tikzpicture}
+   \begin{axis}[
+   grid=major,
+   ylabel={$f_{X}(x)$},
+   xlabel={$x$},
+   ymax = 0.7]
+   
+   \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+     {(-1,0.33) (0,0.33)} \closedcycle;
+   \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+     {(0,0.66) (1,0.66)} \closedcycle;
+   
+   \addplot[draw=blue, ultra thick] coordinates
+     {(-3,0) (-1,0)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(-1,0.33) (0,0.33)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(0,0.66) (1,0.66)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(1,0) (3,0)};
+   \end{axis}
+ \end{tikzpicture}
+\end{center}
+
+Для того, чтобы получить функцию плотности вероятности для с.в. $Y=2x$, надо растянуть ее от оси $OY$ в два раза. Заметьте, что при растягивании сама плотность упадет также в два раза.
+
+\begin{center}
+  \begin{tikzpicture}
+   \begin{axis}[
+   grid=major,
+   ylabel={$f_{X}(x)$},
+   xlabel={$x$},
+   ymax = 0.7]
+   
+   \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+     {(-2,0.166) (0,0.166)} \closedcycle;
+   \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+     {(0,0.33) (2,0.33)} \closedcycle;
+   
+   \addplot[draw=blue, ultra thick] coordinates
+     {(-3,0) (-2,0)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(-2,0.166) (0,0.166)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(0,0.33) (2,0.33)};
+   \addplot[draw=blue, ultra thick] coordinates
+     {(2,0) (3,0)};
+   
+   \coordinate (axis-left) at (axis cs:-0.2, 0.5);
+   \coordinate (left) at (axis cs:-2, 0.5);
+   \coordinate (axis-right) at (axis cs:0.2, 0.5);
+   \coordinate (right) at (axis cs:2, 0.5);
+   \end{axis}
+   \draw [-{Triangle[width=18pt,length=8pt]}, red, line width=10pt] (axis-left) -- (left);
+   \draw [-{Triangle[width=18pt,length=8pt]}, red, line width=10pt] (axis-right) -- (right);
+ \end{tikzpicture}
+\end{center}
+
+Ну и сдвиг при добавлении константы аналогичный. Рассмотрим, например, $g(x) = 2x - 3$
+
+\begin{center}
+  \begin{tikzpicture}
+   \begin{axis}[
+   grid=major,
+   ylabel={$f_{X}(x)$},
+   xlabel={$x$},
+   ymax = 0.7]
+   
+      \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+        {(-5,0.166) (-3,0.166)} \closedcycle;
+      \addplot[draw=blue, draw=none, fill=blue!20] coordinates
+        {(-3,0.33) (-1,0.33)} \closedcycle;
+
+      \addplot[draw=blue, ultra thick] coordinates
+        {(-6,0) (-5,0)};
+      \addplot[draw=blue, ultra thick] coordinates
+        {(-5,0.166) (-3,0.166)};
+      \addplot[draw=blue, ultra thick] coordinates
+        {(-3,0.33) (-1,0.33)};
+      \addplot[draw=blue, ultra thick] coordinates
+        {(-1,0) (0,0)};
+   
+      \coordinate (start) at (axis cs:0, 0.5);
+      \coordinate (end) at (axis cs:-3, 0.5);
+   \end{axis}
+   \draw [-{Triangle[width=18pt,length=8pt]}, red, line width=10pt] (start) -- (end);
+ \end{tikzpicture}
+\end{center}
+
+Как это в общем случае делать с.в.? Рассмотрим $Y = aX + b$ (где $a \ne 0$, иначе это скучный случай, когда $Y = b$ с вероятностью 1). Пусть сначала $X$ дискретная, и нам известна ее функция вероятностей. Тогда
+
+\begin{align*}
+  p_Y(y) = \Pr(Y = y) = \Pr(aX + b = y) = \Pr\left(X = \frac{y - b}{a}\right) = p_X\left( \frac{y - b}{a}\right)
+\end{align*}
+
+С непрерывными такое не работает, так как вероятность, что непрерывная с.в. равна конкретному числу, есть ноль. Но мы можем работать с функциями распределения! Допустим мы знаем $f_X(x)$ и $F_X(x)$. Рассмотрим случай $a > 0$
+
+\begin{align*}
+  F_Y(y) &= \Pr(Y \le y) = \Pr(aX + b \le y) = \Pr\left(X \le \frac{y - b}{a}\right) = F_X\left(\frac{y - b}{a}\right), \\
+  f_Y(y) &= F_Y'(y) = f_X\left(\frac{y - b}{a}\right) \cdot \frac{1}{a}.
+\end{align*}
+
+И отдельно $a < 0$
+\begin{align*}
+  F_Y(y) &= \Pr(Y \le y) = \Pr(aX + b \le y) = \Pr\left(X \ge \frac{y - b}{a}\right) = 1 - F_X\left(\frac{y - b}{a}\right), \\
+  f_Y(y) &= F_Y'(y) = -f_X\left(\frac{y - b}{a}\right) \cdot \frac{1}{a}.
+\end{align*}
+
+Объединяя два случая, получаем:
+
+\begin{align*}
+  f_Y(y) = \frac{1}{|a|}f_X\left(\frac{y - b}{a}\right).
+\end{align*}
+
+Докажем теперь, что линейное преобразование нормального распределения оставляет его нормальным. Пусть $X \sim N(\mu, \sigma^2)$ и $Y = aX + b$. Значит,
+
+\begin{align*}
+  f_Y(y) &= \frac{1}{|a|}f_X\left(\frac{y - b}{a}\right) \\
+         &= \frac{1}{|a|\sigma \sqrt{2\pi}} \exp\left(\frac{\left(\frac{y - b}{a} - \mu\right)^2}{2\sigma^2}\right) \\
+         &= \frac{1}{(|a|\sigma) \sqrt{2\pi}} \exp\left(\frac{\left(y - (b + a\mu)\right)^2}{2(a\sigma)^2}\right),
+\end{align*}
+что есть функция плотности вероятности для $N(a\mu + b, (a\sigma)^2)$.
+
+
+
+
+
 \end{document}
