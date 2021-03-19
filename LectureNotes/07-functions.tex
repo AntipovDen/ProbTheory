@@ -1,0 +1,303 @@
+\documentclass[12pt]{article}
+
+\usepackage{a4wide}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[russian]{babel}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{pgfplots}
+\usepgfplotslibrary{statistics,patchplots}
+\usetikzlibrary{decorations.pathreplacing,calc,tikzmark, patterns,arrows.meta}
+\pgfmathdeclarefunction{gauss}{3}{%
+  \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
+}
+\pgfmathdeclarefunction{gauss2d}{6}{%
+  \pgfmathparse{1/(#3*#6*2*pi)*exp(-((#1-#2)^2)/(2*#3^2) - ((#4-#5)^2)/(2*#6^2))}%
+}
+
+\usepackage{xspace}
+
+\usepackage{mathtools}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+\newcommand\N{\mathbb{N}}
+\newcommand\R{\mathbb{R}}
+\newcommand\eps{\varepsilon}
+\DeclareMathOperator{\Bin}{Bin}
+\DeclareMathOperator{\Geom}{Geom}
+\DeclareMathOperator{\pow}{pow}
+\DeclareMathOperator{\Bern}{Bern}
+\DeclareMathOperator{\Exp}{Exp}
+\DeclareMathOperator{\Var}{Var}
+
+
+\title{Лекция 7. Функции от с.в.}
+
+\begin{document}
+\maketitle
+
+\section{Линейные преобразования}
+
+Как это в общем случае делать посчитать новое распределение линейной функции от с.в.? Рассмотрим $Y = aX + b$ (где $a \ne 0$, иначе это скучный случай, когда $Y = b$ с вероятностью 1). Пусть сначала $X$ дискретная, и нам известна ее функция вероятностей. Тогда
+
+\begin{align*}
+  p_Y(y) = \Pr(Y = y) = \Pr(aX + b = y) = \Pr\left(X = \frac{y - b}{a}\right) = p_X\left( \frac{y - b}{a}\right)
+\end{align*}
+
+С непрерывными такое не работает, так как вероятность, что непрерывная с.в. равна конкретному числу, есть ноль. Но мы можем работать с функциями распределения! Допустим мы знаем $f_X(x)$ и $F_X(x)$. Рассмотрим случай $a > 0$
+
+\begin{align*}
+  F_Y(y) &= \Pr(Y \le y) = \Pr(aX + b \le y) = \Pr\left(X \le \frac{y - b}{a}\right) = F_X\left(\frac{y - b}{a}\right), \\
+  f_Y(y) &= F_Y'(y) = f_X\left(\frac{y - b}{a}\right) \cdot \frac{1}{a}.
+\end{align*}
+
+И отдельно $a < 0$
+\begin{align*}
+  F_Y(y) &= \Pr(Y \le y) = \Pr(aX + b \le y) = \Pr\left(X \ge \frac{y - b}{a}\right) = 1 - F_X\left(\frac{y - b}{a}\right), \\
+  f_Y(y) &= F_Y'(y) = -f_X\left(\frac{y - b}{a}\right) \cdot \frac{1}{a}.
+\end{align*}
+
+Объединяя два случая, получаем:
+
+\begin{align*}
+  f_Y(y) = \frac{1}{|a|}f_X\left(\frac{y - b}{a}\right).
+\end{align*}
+
+Докажем теперь, что линейное преобразование нормального распределения оставляет его нормальным. Пусть $X \sim N(\mu, \sigma^2)$ и $Y = aX + b$. Значит,
+
+\begin{align*}
+  f_Y(y) &= \frac{1}{|a|}f_X\left(\frac{y - b}{a}\right) \\
+         &= \frac{1}{|a|\sigma \sqrt{2\pi}} \exp\left(\frac{\left(\frac{y - b}{a} - \mu\right)^2}{2\sigma^2}\right) \\
+         &= \frac{1}{(|a|\sigma) \sqrt{2\pi}} \exp\left(\frac{\left(y - (b + a\mu)\right)^2}{2(a\sigma)^2}\right),
+\end{align*}
+что есть функция плотности вероятности для $N(a\mu + b, (a\sigma)^2)$.
+
+\section{Нелинейные преобразования}
+
+Алгоритм поиска нового распределения $Y = g(X)$:
+\begin{enumerate}
+  \item Найти функцию распределения $F_Y(y) = \Pr(Y \le y) = \Pr(g(X) \le y)$
+  \item Продифференцировать: $f_Y(y) = F_Y'(y)$.
+\end{enumerate}
+
+Рассмотрим случай, когда $g(x)$ монотонно возрастает и дифференцируема.
+
+\begin{align*}
+  F_Y(y) &= \Pr(Y \le y) = \Pr(g(X) \le y) = \Pr(X \le g^{-1}(y)) = F_X(g^{-1}(y)) \\
+  f_Y(y) &= F_Y'(y) = F_X'(g^{-1}(y)) = f_X(g^{-1}(y)) (g^{-1}(y))' = \frac{f_X(g^{-1}(y))}{g'(g^{-1}(y))}
+\end{align*}
+
+Аналогично можно рассмотреть случай, когда $g(x)$ монотонно убывает и дифференцируема
+\begin{align*}
+  F_Y(y) &= \Pr(Y \le y) = \Pr(g(X) \le y) = \Pr(X \ge g^{-1}(y)) = 1 - F_X(g^{-1}(y)) \\
+  f_Y(y) &= F_Y'(y) = -F_X'(g^{-1}(y)) = -f_X(g^{-1}(y)) (g^{-1}(y))' = -\frac{f_X(g^{-1}(y))}{g'(g^{-1}(y))} = \frac{f_X(g^{-1}(y))}{|g'(g^{-1}(y))|}
+\end{align*}
+
+То есть в общем случае (когда $g(x)$ строго монотонна):
+\begin{align*}
+  f_Y(y) = \frac{f_X(g^{-1}(y))}{|g'(g^{-1}(y))|}
+\end{align*}
+
+Интуитивное объяснение (которое использовалось на практике). Пусть $y = g(x)$
+
+\begin{align*}
+  f_Y(y) \delta_y \approx \Pr(y \le Y \le y + \delta_y) = \Pr(x \le X \le x + \delta_y) = f_X(x) \delta_x = f_X(x) \frac{\delta_y}{g'(x)}
+\end{align*}
+
+\begin{center}
+  \begin{tikzpicture}
+      \begin{axis}[xmin=0, xmax=4, ymin=0, ymax=4,
+      grid=major,
+      ylabel={$Y = g(X)$},
+      xlabel={$X$}, smooth]
+        \addplot [blue] coordinates {(0, 0) (1, 1.2) (1.5, 1.4) (1.7, 1.5) (2.2, 2) (3, 3) (3.5, 4)};
+        \coordinate (x) at (axis cs: 1.5,0);
+        \coordinate (dx) at (axis cs:1.7,0);
+        \coordinate (y) at (axis cs: 0,1.4);
+        \coordinate (dy) at (axis cs:0,1.5);
+
+        \coordinate (xy) at (axis cs:1.5,1.4);
+        \coordinate (dxy) at (axis cs:1.7,1.5);
+
+      \end{axis}
+
+      \draw [dashed] (x) -- (xy) -- (y);
+      \draw [dashed] (dx) -- (dxy) -- (dy);
+
+      \draw [ultra thick, red] (x) -- (dx) node [pos=0.5, below, black] {$\delta_x$};
+      \draw [ultra thick, blue] (y) -- (dy) node (cy) [pos=0.5] {};
+
+      \node (label) at (-2, 0) {$\delta_y = \delta_x g'(x)$};
+      \draw [->] (label) -- (cy); 
+
+      \draw [ultra thick] (xy) -- (dxy);
+  \end{tikzpicture}
+\end{center}
+
+Для немонотонных $g(x)$ алгоритм остается прежний, но нет гарантий, что все пройдет легко. рассмотрим $g(x) = x^2$ и $Y = g(X)$ (при известной плотности $X$).
+
+\begin{align*}
+  F_Y(y) &= \Pr(Y \le y) = \Pr(X^2 \le y) = 1 - \Pr(X^2 > y) \\
+         &= 1 - \Pr(X > \sqrt{y}) - \Pr(X < -\sqrt{y}) \\
+         &= \Pr(X \le \sqrt{y}) = \Pr(X < -\sqrt{y}) = F_X(\sqrt{y}) - F_X(-sqrt{y}) \\
+  f_Y(y) &= F_Y'(y) = F_X'(\sqrt{y}) - F_X'(-\sqrt{y}) = f_X(\sqrt{y}) \frac{1}{2\sqrt{y}} - f_X(-\sqrt{y}) \left(-\frac{1}{2\sqrt{y}}\right) \\
+         &= \frac{f_X(\sqrt{y}) + f_X(-\sqrt{y}) }{2\sqrt{y}}  
+\end{align*}
+
+\section{Функции нескольких с.в.}
+
+Если есть $Z = g(X, Y)$, то алгоритм нахождения ее функции распределения или плотности такой же. Рассмотрим на примере. $X, Y$ -- независимые, обе следуют $U(0, 1)$. Рассмотрим с.в. $Z = \frac{Y}{X}$.
+
+Найдем функцию распределения $F_Z(z)$
+
+\begin{align*}
+  F_Z(z) = \Pr(\frac{Y}{X} \le z).
+\end{align*}
+
+
+\begin{center}
+  \begin{tikzpicture}
+      \begin{axis}[xmin=0, xmax=1.2, ymin=0, ymax=1.2,
+      grid=major,
+      ylabel={$Y = g(X)$},
+      xlabel={$X$}]
+        \addplot [draw=none, fill=blue!20] coordinates {(0, 0) (0.5, 1) (1, 1) (1, 0)} \closedcycle;
+        \addplot [draw=none, fill=red!20] coordinates {(0, 0) (1, 0.5) (1, 0)} \closedcycle;
+        \addplot [black, ultra thick] coordinates {(0, 1) (1, 1) (1, 0)};
+        \addplot [red] coordinates {(0, 0) (1.2, 0.6)};
+        \addplot [blue] coordinates {(0, 0) (0.6, 1.2)};
+      \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+Если $z$ меньше единицы, то это просто интеграл по красному треугольнику, то есть его площадь (так как совместная плотность $f_{X, Y}(x, y) = 1$ на всем квадрате).
+
+\begin{align*}
+  F_Z(z) = \frac{z}{2}, \text{ если } z \in [0, 1].
+\end{align*}
+
+Если $z > 1$ , то это площадь всего квадрата минус площадь незакрашенного треугольника
+
+\begin{align*}
+  F_Z(z) = 1 - \frac{1}{2z}.
+\end{align*}
+
+Объединяя все вместе, получаем:
+
+\begin{align*}
+  F_Z(z) = \begin{cases}
+    0, &\text{ если } z < 0, \\
+    \frac{z}{2}, &\text{ если } z \in [0, 1), \\
+    1 - \frac{1}{2z}, &\text{ если } z \ge 1. \\
+  \end{cases}
+\end{align*}
+
+\section{Эмитация одного распределения другим}
+
+Практически любое современное вычислительное устройство умеет генерировать (псевдо)случайные числа, но чаще всего только равномерное распределение. Этого на самом деле достаточно, чтобы получить случайную величину, следующую любому другому распределению. В данной части мы предполагаем, что мы умеем получать с.в. $X \sim U(0 ,1)$ и хотим получить с.в. $Y$, для которой знаем функцию распределения $F_Y(y)$.
+
+Рассмотрим простой случай. $Y$ -- дискретная с.в. с конечным набором значений. Пусть ее функция вероятности выглядит так:
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[ybar, ymin=0,
+      grid=major,
+      ytick = {0.35, 0.2, 0.45},
+      ylabel={$p_{Y}(y)$},
+      xlabel={$y$}]
+      \addplot
+      [draw=blue, fill=blue] 
+      coordinates
+        {(0, 0.35) (2,0.2) (3,0.45)};
+    \end{axis}
+  \end{tikzpicture}
+\end{center}
+
+Как мы можем поступить. Возьмем отрезок единичной длины, разобъем его на отрезки длиной, соответствующей вероятности каждого значения с.в., сгенерим $X$ и вернем значение, соответствующее тому значению, в которое попал $X$ .
+
+\begin{center}
+  \begin{tikzpicture}
+    \draw [ultra thick] (0, 0) rectangle (10, 1);
+
+    \draw (3.5, -0.3) -- (3.5, 1);
+    \draw (5.5, -0.3) -- (5.5, 1);
+    \draw (0, 0) -- (0, -0.3);
+    \draw (10, 0) -- (10, -0.3);
+
+    \node at (1.75, 0.5) {$0$};
+    \node at (4.5, 0.5) {$2$};
+    \node at (7.75, 0.5) {$3$};
+
+    \draw [<->] (0, -0.3) -- (3.5, -0.3) node [pos=0.5, below] {$0.35$};
+    \draw [<->] (3.5, -0.3) -- (5.5, -0.3) node [pos=0.5, below] {$0.2$};
+    \draw [<->] (5.5, -0.3) -- (10, -0.3) node [pos=0.5, below] {$0.45$};
+  \end{tikzpicture}
+\end{center}
+
+Таким методом можно сэмитировать любую с.в. с конечным множеством значений размера $n$ за время запроса к $X \sim U(0, 1)$ плюс время $\Theta(\log(n))$, необходимое для нахождения отрезка, в который мы попали, двоичным поиском.
+
+Интерпретация наших действий на основе функции распределения:
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+      grid=major,
+      xmin = -1,
+      xmax = 4,
+      ytick = {0, 0.35, 0.55, 1},
+      ylabel={$F_{Y}(y)$},
+      xlabel={$y$}]
+      \addplot
+      [draw=blue, ultra thick] 
+      coordinates
+        {(-1, 0) (0,0) (0, 0.35) (2, 0.35) (2, 0.55) (3, 0.55) (3, 1) (4, 1)};
+
+      \coordinate (y) at (axis cs:-1, 0.75);
+      \coordinate (x) at (axis cs:3, 0);
+      \coordinate (xy) at (axis cs:3, 0.75);
+    \end{axis}
+
+    \draw [red, dashed, ultra thick] (y) -- (xy) -- (x);
+    \node [left] at (y) {генерим $X$ здесь};
+    \node [below=1cm] at (x) {берем $Y$ отсюда};
+  \end{tikzpicture}
+\end{center}
+
+Давайте используем эту интерпретацию для непрерывной $Y$ в случае с монотонной $F_Y(y)$.
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+      grid=major,
+      xmin = -1,
+      xmax = 4,
+      ylabel={$F_{Y}(y)$},
+      xlabel={$y$},
+      smooth]
+      \addplot
+      [draw=blue, ultra thick] 
+      coordinates
+        {(-1, 0) (0, 0.1) (1, 0.5) (2, 0.75) (3, 0.9) (4, 1)};
+
+      \coordinate (y) at (axis cs:-1, 0.75);
+      \coordinate (x) at (axis cs:2, 0);
+      \coordinate (xy) at (axis cs:2, 0.75);
+    \end{axis}
+
+    \draw [red, dashed, ultra thick] (y) -- (xy) -- (x);
+    \node [left=0.5cm] at (y) {генерим $X$ здесь};
+    \node [below=1.5cm] at (x) {берем $Y$ отсюда};
+  \end{tikzpicture}
+\end{center}
+
+То есть после выбора $X$ мы берем $Y = F_Y^{-1}(X)$. Почему это работает:
+
+\begin{align*}
+  \Pr(Y \le y) = \Pr(F_Y^{-1}(X) \le y) = \Pr(X \le F_Y(y)) = F_Y(y)
+\end{align*}
+
+\end{document}
