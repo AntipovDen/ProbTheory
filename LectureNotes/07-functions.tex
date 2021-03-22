@@ -196,6 +196,97 @@
   \end{cases}
 \end{align*}
 
+\subsection{Сумма независимых с.в.}
+
+В данном подразделе мы имеем две независимых с.в. $X$ и $Y$, знаем их распределение и хотим узнать распределение с.в. $Z = X + Y$. 
+
+\textbf{Дискретный случай}
+
+Чтобы посчитать вероятность того, что $Z = z$, необходимо, чтобы одновременно выполнялось:
+\begin{itemize}
+  \item $X = x$ (где $x$ --- какое-то число из множества значений $X$)
+  \item $Y = z - x$.
+\end{itemize}
+
+То есть мы берем все пары $(x, y)$ с прямой $x + y = z$ и суммируем вероятности этих пар.
+
+\begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[xmin=-1, xmax=3, ymin=-1, ymax=3,
+      grid=major,
+      ylabel={$y$},
+      xlabel={$x$}]
+      \addplot coordinates {(-2, 4) (-0.5, 2.5) (0, 2) (0.5, 1.5) (1, 1) (2, 0) (4, -2)};
+      \coordinate (a1) at (axis cs:-0.5, 2.5);
+      \coordinate (a2) at (axis cs:0, 2);
+      \coordinate (a3) at (axis cs:0.5, 1.5);
+      \coordinate (a4) at (axis cs:1, 1);
+      \coordinate (a5) at (axis cs:2, 0);
+    \end{axis}
+
+    \node [above right] at (a1) {$(-0.5, 2.5)$};
+    \node [above right] at (a2) {$(0, 2)$};
+    \node [above right] at (a3) {$(0.5, 1.5)$};
+    \node [above right] at (a4) {$(1, 1)$};
+    \node [above right] at (a5) {$(2, 0)$};
+
+    
+  \end{tikzpicture}
+\end{center}
+
+Заметим, что из-за независимости $X$ и $Y$ события $X = x$ и $Y = z - x$ независимы, поэтому 
+\[
+  \Pr(X = x \cap Y = z - x) = p_X(x) p_Y(z - x). 
+\]
+Таким образом, формула выглядит так:
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        p_{Z}(z) = \sum_{x} p_X(x) p_Y(z - x)  
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+\textbf{Непрерывный случай}
+
+Аналогичная формула для непрерывных с.в.:
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        f_{Z}(z) = \int_{-\infty}^{+\infty} f_X(x) f_Y(z - x) dx  
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+Чтобы ее доказать, обусловимся сначала на событии $X = x$. Тогда 
+\begin{align*}
+  f_{Z \mid X}(z \mid x) = f_{Y + x \mid X}(z \mid x) = f_{Y + x}(z) = f_Y(z - x). 
+\end{align*}
+Далее, по формуле полной вероятности имеем
+\begin{align*}
+  f_Z(z) = \int_{-\infty}^{+\infty} f_X(x) f_{Z \mid X} (z \mid x) dx = \int_{-\infty}^{+\infty} f_X(x) f_Y(z - x) dx/
+\end{align*}
+
+\textbf{Интересное следствие}
+
+Сумма независимых нормальных распределений есть нормальное распределение. Пусть $X \sim N(\mu_X, \sigma_X^2)$ и $Y \sim N(\mu_Y, \sigma_Y^2)$ --- независимы. Посчитаем $f_Z(z)$, где $Z = X + Y$.
+
+\begin{align*}
+  f_Z(z) &= \int_{-\infty}^{+\infty} f_X(x) f_Y(z - x) dx \\
+         &= \int_{-\infty}^{+\infty} \frac{1}{\sigma_X \sqrt{2\pi}} \exp\left(-\frac{(x - \mu_X)^2}{2\sigma_X^2}\right) \cdot \frac{1}{\sigma_Y \sqrt{2\pi}} \exp\left(-\frac{(z - x - \mu_Y)^2}{2\sigma_Y^2}\right)dx \\
+         &= \frac{1}{\sqrt{2\pi(\sigma_X^2 + \sigma_Y^2)}} \exp\left(-\frac{(z - \mu_X - \mu_Y)^2}{2(\sigma_X^2 + \sigma_Y^2)}\right)
+\end{align*}
+Тут было много несложной, но громоздкой математики, которую мы опустили. Таким образом, $Z \sim N(\mu_X + \mu_Y, \sigma_X^2 + \sigma_Y^2)$. Единственное удивительное здесь -- то, что мы по-прежнему имеем нормальное распределение. Его параметры при этом очевидны из линейности матожиданий и из свойств дисперсии независимых с.в. 
+
+По индукции легко доказать, что для любого конечного множества независимых нормальных с.в. их сумма будет также нормальной с.в.
+
+
 \section{Эмитация одного распределения другим}
 
 Практически любое современное вычислительное устройство умеет генерировать (псевдо)случайные числа, но чаще всего только равномерное распределение. Этого на самом деле достаточно, чтобы получить случайную величину, следующую любому другому распределению. В данной части мы предполагаем, что мы умеем получать с.в. $X \sim U(0 ,1)$ и хотим получить с.в. $Y$, для которой знаем функцию распределения $F_Y(y)$.
@@ -299,5 +390,7 @@
 \begin{align*}
   \Pr(Y \le y) = \Pr(F_Y^{-1}(X) \le y) = \Pr(X \le F_Y(y)) = F_Y(y)
 \end{align*}
+
+\section{Ковариация}
 
 \end{document}
