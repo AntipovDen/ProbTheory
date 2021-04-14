@@ -39,6 +39,7 @@
 \DeclareMathOperator{\sign}{sign}
 
 \newtheorem{theorem}{Теорема}
+\newtheorem{lemma}{Лемма}
 
 \title{Лекция 9. Полезные инструменты}
 
@@ -84,6 +85,331 @@
 Посмотрим теперь, насколько оно точное. Возьмем с.в. $X \sim \Exp(1)$ и вспомним, что $E[X] = 1$ и $\Pr(X \ge a) = e^{-a}$.
 Неравенство Маркова дает нам куда более слабую оценку: $\Pr(X \ge a) \le \frac{1}{a}$.
 
-Посмотрим также, как применять это неравенство на другом примере. Пусть $X \sim U(-4, 4)$.
+Посмотрим также, как применять это неравенство на другом примере. Пусть $X \sim U(-4, 4)$. Эта с.в. не неотрицательная, поэтому к ней нельзя применить неравнество Маркова. Однако есть три способа его использовать. Попробуем вычислить вероятность того, что $X \ge 3$. Из простых соображений она равна $\frac{1}{8}$
+
+\textbf{Первый способ.} Возьмем с.в. $Y = |X|$. Несложными вычислениями можно показать, что $Y \sim U(0, 4)$. (Для этого рассмотрим $F_Y(y) = F_X(x) - F_X(-x)$ и возьмем производную). Теперь заметим, что событие $Y \ge 3$ есть надсобытие для $X \ge 3$, поэтому
+
+\begin{align*}
+  \Pr(X \ge 3) \le \Pr(Y \ge 3) \le \frac{E[Y]}{3} = \frac{2}{3}.
+\end{align*}
+
+\textbf{Второй способ.} Возьмем точно такой же $Y = |X|$. Заметим, что так как $X$ симметричен относительно нуля, то $\Pr(Y \ge 3) = \Pr(X \le -3) + \Pr(X \ge 3) = 2\Pr(X \ge 3)$, поэтому оценка уменьшается в два раза.
+
+\begin{align*}
+  \Pr(X \ge 3) = \frac{\Pr(Y \ge 3)}{2} \le \frac{E[Y]}{6} = \frac{1}{3}.
+\end{align*}
+
+\textbf{Третий способ.} Снова преобразуем $X$, но теперь просто сдвинем его в неотрицательную часть. Возьмем $Y = X + 4 \ge 0$. Теперь 
+\begin{align*}
+  \Pr(X \ge 3) = \Pr(Y \ge 7) \le \frac{E[Y]}{7} = \frac{E[X] + 4}{7} = \frac{4}{7}.
+\end{align*}
+
+Заметим, что второй способ дал наилучшую оценку, третий --- похуже, и первый --- самую плохую. Однако все оценки получились весьма неточными. Причина этому --- мы используем очень мало информации о с.в., а именно --- только знаем про ее матожидание. Если мы имеем только эту информацию, то можно легко построить с.в., для которой неравенство Маркова будет строгим (а именно ту, которую мы использовали в доказательстве неравенства).
+
+\section{Неравенства для целочисленных с.в.}
+
+Для с.в. $X$, котороая принимает значения только из $\N$ мы можем использовать следующую полезную формулу:
+
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        E[X] = \sum_{i = 1}^{+\infty} \Pr(X \ge i)
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Выводится она очень просто:
+
+\begin{align*}
+  E[X] = \sum_{j = 1}^{+\infty} j \Pr(X = j) = \sum_{j = 1}^{+\infty} \sum_{i = 1}^{j} \Pr(X = j) = \sum_{i = 1}^{+\infty} \sum_{j = i}^{+\infty} \Pr(X = j) = \sum_{i = 1}^{+\infty} \Pr(X \ge i)
+\end{align*}
+
+При этом для лбой с.в. $X$, принимающей значения в $(-\infty, 0] \cup \N$ выполняется следующее неравенство:
+
+\begin{align*}
+  E[X] \le \sum_{i = 1}^{+\infty} \Pr(X \ge i).
+\end{align*}
+
+Доказывается по аналогии:
+\begin{align*}
+  E[X] = \sum_{j = -\infty}^{+\infty} j \Pr(X = j) \le \sum_{j = 1}^{+\infty} j \Pr(X = j) = \sum_{i = 1}^{+\infty} \Pr(X \ge i).
+\end{align*}
+
+С ее помощью можно производить оценки матожидание, когда мы уже имеем какие-то оценки на вероятность того, что с.в. больше или меньше какого-то числа. Это довольно частый случай, так как матожидание с.в. бывает не так легко найти.
+
+Пусть есть какие-то $\alpha, \beta > 0$ и $T \in \N_0$. Пусть также $X$ --- какая-то целочисленная с.в.. Тогда верны следующие утверждения.
+
+\begin{itemize}
+  \item Если для всех $\lambda \in \N$ верно $\Pr(X \ge T + \lambda) \le \alpha \exp(-\frac{\lambda}{\beta})$, то $E[X] \le T + \alpha\beta$.
+  \item Если $X \ge 0$ и для всех $\lambda \in [1..T]$ верно $\Pr(X \le T - \lambda) \le \alpha \exp(-\frac{\lambda}{\beta})$, то $E[X] \ge T - \alpha\beta$.
+  \item Если для всех $\eps > 0$ верно $\Pr(X \ge (1 + \eps)T) \le \alpha \exp(-\frac{\eps}{\beta})$, то $E[X] \le (1 + \alpha\beta)T$.
+  \item Если для всех $\eps \in (0, 1]$ верно $\Pr(X \le (1 -\eps)T) \le \alpha \exp(-\frac{\eps}{\beta})$, то $E[X] \ge (1 - \alpha\beta)T$.
+\end{itemize}
+
+Докажем первые два, остальные аналогично. Так как $X \in (-\infty, 0] \cup \N$, то можем применить неравенсвтво:
+
+\begin{align*}
+  E[X] &\le \sum_{i = 1}^{+\infty} \Pr(X \ge i) \le T + \sum_{i = T + 1}^{+\infty} \alpha \exp\left(-\frac{i - T}{\beta}\right) \\
+       &= T + \alpha \frac{e^{-1/\beta}}{1 - e^{-1/\beta}} = T + \alpha \frac{1}{e^{1/\beta} - 1} \le T + \alpha\beta,
+\end{align*}
+где последнее неравенство следует из того, что $e^x - 1 \ge x$ для любого $x$.
+
+Во втором случае $X \in \N$, поэтому
+\begin{align*}
+  E[X] &= \sum_{i = 1}^{+\infty} \Pr(X \ge i) \ge \sum_{i = 1}^{T} \Pr(X \ge i) \\
+       &= \sum_{i = 1}^T (1 - \Pr(X \le i - 1)) \ge T - \sum_{i = 1}^{T} \alpha\exp\left(-\frac{T - i + 1}{\beta}\right) \\
+       &= T - \alpha e^{-1/\beta} \frac{1 - e^{-T/\beta}}{1 - e^{-1/\beta}} \ge T - \alpha\beta. 
+\end{align*}
+
+\section{Неравенство Чебышева}
+
+Допустим, у нас есть еще чуть больше информации про с.в., а именно мы знаем ее матожидание и дисперсию. Рассмотрим вероятность события $(|X - E(X)| \ge a)$. Данное событие эквивалентно событию $((X - E(X))^2 \ge a^2)$?, поэтому их вероятности равны. Заметим также, что $Y = ((X - E(X))^2$ --- неотрицательная с.в., то есть к ней можно применить неравнество Маркова.
+
+\begin{align*}
+  \Pr(|X - E(X)| \ge a) &= \Pr((X - E(X))^2 \ge a^2) \le \frac{E((X - E(X))^2)}{a^2} = \frac{\Var(X)}{a^2} = \frac{\sigma^2}{a^2}.
+\end{align*}
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        \Pr(|X - E(X)| \ge a) \le \frac{\sigma^2}{a^2}
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Или, если вместо $a$ поставить $a\sigma$, получим
+
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        \Pr(|X - E(X)| \ge a\sigma) \le \frac{1}{a^2}
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Проверим, что оно нам дает на том же экспоненциальном распределении, на котором мы тестили неравенство Маркова. Пусть $X \sim \Exp(1)$, тогда $E[X] = \Var[X] = 1$. Возьмем какой-нибудь $a > 2$ и посчитаем
+
+\begin{align*}
+  \Pr(X \ge a) = \Pr((X - 1) \ge (a - 1)) = \Pr(|X - E(X)| \ge a - 1) \le \frac{1}{(a - 1)^2}.
+\end{align*}
+Оценка, конечно, получше, но до $e^{-a}$ все равно не дотягивает.
+
+Есть также односторонняя версия неравенства Чебышева, которая называется неравенстовом Кантелли, правда многие приписывают эти неравенства Чебышеву (в том числе Хёфдинг, чье неравенство мы посмотрим следующим). Пусть $a > 0$.
+
+
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        \Pr(X \ge E(X) + a\sigma) \le \frac{1}{a^2 + 1}
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \[
+        \Pr(X \le E(X) -  a\sigma) \le \frac{1}{a^2 + 1}
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Докажем первое из них. Возьмем какоt-нибудь число $u > 0$
+
+\begin{align*}
+  \Pr(X \ge E(X) + a\sigma) &= \Pr(X - E(X) + u \ge a\sigma + u) \\
+      &\le \Pr((X - E(X) + u)^2 \ge (a\sigma + u)^2) \\
+      &\le \frac{E[(X - E(X) + u)^2]}{(a\sigma + u)^2} = \frac{\sigma^2+ u^2}{(a\sigma + u)^2}.
+\end{align*}
+
+И это верно для всех $u$, поэтому можем спокойно взять такой $u$, при котором получается самая строгая оценка. Возьмем $u = \frac{\sigma}{a}$ (можно получить это значение, продифференцировав по $u$).
+
+\begin{align*}
+  \Pr(X \ge E(X) + a\sigma) \le \frac{\sigma^2+ \frac{\sigma^2}{a^2}}{(a\sigma + \frac{\sigma}{a})^2} = \frac{1 + \frac{1}{a^2}}{\left(a + \frac{1}{a}\right)^2} = \frac{a^2 + 1}{(a^2 + 1)^2} = \frac{1}{a^2 + 1}.
+\end{align*}
+
+\section{Неравенство Хёфдинга}
+
+Это неравенство для оценки вероятности того, что сумма $n$ независимых ограниченных случайных величин сильно отклоняется от своего матожидания. Выглядит оно так. Пусть $X_1, \dots, X_n$ --- независимые случайные величины, причем каждая из них ограничена. То есть для любого $i \in [1..n]$ есть такие $a_i, b_i \in \R$, что $\Pr(X_i \in [a_i, b_i]) = 1$. Пусть также $X = \sum_{i = 1}^n X_i$. Тогда
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.6\textwidth}
+      \[
+        \Pr(X - E[X] \ge t) \le \exp\left(-\frac{2t^2}{\sum_{i = 1}^n (b_i - a_i)^2}\right)
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.6\textwidth}
+      \[
+        \Pr(|X - E[X]| \ge t) \le 2\exp\left(-\frac{2t^2}{\sum_{i = 1}^n (b_i - a_i)^2}\right)
+      \]
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Чем полезно это неравенство? Во-первых, для с.в. $X_i \in [0, 1]$ оно выглядит куда милее (так как сумма в знаменателе экспоненты равна $n$):
+\begin{align*}
+  \Pr(X - E[X] \ge t) &\le e^{2t^2/n} \\
+  \Pr(|X - E[X]| \ge t) &\le 2e^{2t^2/n}
+\end{align*}
+
+Во-вторых, оно позволяет получить хорошую оценку на вероятность того, что с.в., следующая биномиальному распределению сильно отклоняетя от своего матожидания. Пусть $X \sim \Bin(n, p)$. Тогда его можно представить как сумму $n$ независимых с.в., следующих распределению Бернулли, то есть ограниченных нулем и единицей. Раньше мы не могли ничего сделать с такой вероятностью:
+
+\begin{align*}
+  \Pr(X \ge np + t) = \sum_{i = \lceil np + t\rceil}^n \binom{n}{i} p^i (1 - p)^{n - i}
+\end{align*}
+
+А теперь можем ее ограничить сверху:
+\begin{align*}
+  \Pr(X \ge np + t) \le e^{-2t^2/n}
+\end{align*}
+Аналогично:
+\begin{align*}
+  \Pr(X \le np - t) = \Pr(n - X \ge n(1 - p) + t) \le e^{-2t^2/n}
+\end{align*}
+
+Но последние два неравенства чаще представляют в мультипликативном виде:
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \begin{align*}
+        \Pr(X \ge (p + \delta)n) &\le e^{-2\delta^2n} \\
+        \Pr(X \ge (p - \delta)n) &\le e^{-2\delta^2n}
+      \end{align*}
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Пробежимся по доказательству общего неравенства (без модуля). Оно основано на лемме Хёфдинга.
+
+ \begin{lemma}
+   Пусть с.в. $X$ такова, что $E[X] = \mu$ и $\Pr(X \in [a,b]) = 1$. Тогда для любого $s \in \R$
+   \begin{align*}
+     E[e^{s(X - \mu)}] \le \exp\left(\frac{1}{8}s^2(b - a)^2 \right)
+   \end{align*} 
+ \end{lemma}
+
+Ее доказательство основано на применение неравенства Йенсена к экспоненте (пока опустим его).
+
+Вернемся к доказательству неравенства Хёфдинга. Возьмем какой-нибудь $s \in \R$ и применим неравенство Маркова
+\begin{align*}
+  \Pr(X - E[X] \ge t) &= \Pr(e^{s(X - E[X])} \ge e^st) \\
+                      &\le e^{-st} E[e^{s(X - E[X])}] \\
+                      &= e^{-st} \prod_{i = 1}^n E[e^{s(X_i - E[X_i])}] \\
+                      &\le e^{-st} \prod_{i = 1}^n \exp\left(\frac{1}{8}s^2(b_i - a_i)^2\right) \\
+                      &= \exp\left(-st + \frac{1}{8}s^2 \sum_{i = 1}^n (b_i - a_i)^2\right)
+\end{align*}
+
+Аргумент экспоненты -- это квадратичная функция от $s$, поэтому легко найти ее минимум при $s = \frac{4t}{\sum_{i = 1}^n (b_i^2 - a_i^2)}$. Подставим и получим
+
+\begin{align*}
+  \Pr(X - E[X] \ge t) \le \exp\left(\frac{2t^2}{\sum_{i = 1}^n (b_i - a_i)^2}\right).
+\end{align*}
+
+\section{Границы Чернова}
+
+Самая общая граница Чернова выглядит как просто преобразование события аналогично тому, что мы сделали в доказательстве неравенства Хёфдинга и применении неравенства Маркова. Для всех $t > 0$
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \begin{align*}
+        \Pr(X \ge a) \le \frac{E[e^{tX}]}{e^{ta}} 
+      \end{align*}
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+Для всех $t < 0$ аналогично имеем
+\begin{center}
+  \begin{tikzpicture}[rounded corners]
+    \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+    \begin{minipage}{0.4\textwidth}
+      \begin{align*}
+        \Pr(X \le a) \le \frac{E[e^{tX}]}{e^{ta}} 
+      \end{align*}
+    \end{minipage}};
+  \end{tikzpicture}
+\end{center}
+
+% Но более известно неравенство, которое иногда называется неравенством Чернова-Хёфдинга. Пусть $X_1, \dots, X_n$ --- независимые с.в., следующие распределению Бернулли с параметром $p$. Тогда 
+
+% \begin{center}
+%   \begin{tikzpicture}[rounded corners]
+%     \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+%     \begin{minipage}{0.8\textwidth}
+%       \begin{align*}
+%         \Pr\left(\frac{1}{n}\sum_{i = 1}^n X_i \ge p + \eps\right) &\le \left(\left(\frac{p}{p + \eps}\right)^{p + \eps} \left(\frac{1 - p}{1 - p -\eps}\right)^{1 - p - \eps}\right)^n \\
+%         \Pr\left(\frac{1}{n}\sum_{i = 1}^n X_i \le p - \eps\right) &\le \left(\left(\frac{p}{p - \eps}\right)^{p - \eps} \left(\frac{1 - p}{1 - p + \eps}\right)^{1 - p + \eps}\right)^n
+%       \end{align*}
+%     \end{minipage}};
+%   \end{tikzpicture}
+% \end{center}
+
+% Но в этой форме оно мало о чем говорит, поэтому еще чаще используют следующее чуть менее точное неравенство
+% \begin{center}
+%   \begin{tikzpicture}[rounded corners]
+%     \node [draw, rectangle, fill=blue!20, minimum height = 1.5cm, minimum width = 4.5cm] at (0,0) {
+%     \begin{minipage}{0.6\textwidth}
+%       \begin{align*}
+%         \Pr\left(\sum_{i = 1}^n X_i \ge np + a\right) \le \exp\left(-\frac{a^2}{2np(1 - p)}\right) 
+%       \end{align*}
+%     \end{minipage}};
+%   \end{tikzpicture}
+% \end{center}
+
+Однако гораздо чаще под границами Чернова понимаются следующие "хвостовые оценки" в мультипликативной форме. Пусть $X_1, \dots, X_n$ --- независимые случайные величины, принимающие только значения из $[0, 1]$. Пусть $X = \sum_{i = 1}^n X_i$ и $\delta > 0$. Тогда
+
+\begin{align*}
+  \Pr(X \ge (1 + \delta)E[X]) &\le \left(\frac{1}{1 + \delta}\right)^{(1 + \delta)E[X]} \left(\frac{n - E[X]}{n - (1 + \delta)E[X]}\right)^{n - (1 + \delta)E[X]} \\
+  &\le \left(\frac{e^\delta}{(1 + \delta)^{1 +\delta}}\right)^{E[X]} = \exp\left(-((1 + \delta)\ln(1 + \delta) - \delta)E[X]\right)\\
+  &\le \exp\left(-\frac{\delta^2 E[X]}{2 + \frac{2}{3}\delta}\right)\\
+  &\le \exp\left(-\frac{\min\{\delta, \delta^2\}E[X]}{3}\right).
+\end{align*}
+
+Самая строгая из этих границ была показана Хёфдингом, а также он показал, что это лучшее, чего можно добиться с помощью общих границ Чернова для этих с.в. Нижние границы Чернова при всех тех же условиях выглядят очень похоже, только мы предполагаем, что $\delta \in [0, 1]$.
+
+\begin{align*}
+  \Pr(X \ge (1 - \delta)E[X]) &\le \left(\frac{1}{1 - \delta}\right)^{(1 - \delta)E[X]} \left(\frac{n - E[X]}{n - (1 - \delta)E[X]}\right)^{n - (1 - \delta)E[X]} \\
+  &\le \left(\frac{e^\delta}{(1 - \delta)^{1 - \delta}}\right)^{E[X]} \\
+  &\le \exp\left(-\frac{\delta^2E[X]}{2}\right).
+\end{align*}
+
+Вообще главное доказать первую верхнюю оценку, а из нее следуют все остальные простыми махинациями с фукнциями, первая нижняя --- тоже из нее путем рассмотрения $Y_i = 1 - X_i$, а остальные нижние так же из нее следуют. Доказывать их несколько муторно, поэтому я просто приложу статью Хёфдинга, где он это делает.
+
+Последняя форма границ Чернова, которую мы рассмотрим --- с использованием дисперсии. Пусть у нас есть независимые $X_1, \dots, X_n$, причем все они не превосходят свое матожидание более, чем на 1 с вероятностью 1 (то есть $\Pr(X_i \le E[X_i] + 1) = 1$). Пусть $X$ --- их сумма, а $\sigma^2 = \Var(X)$. Тогда для любой $\lambda > 0$
+
+\begin{align*}
+  \Pr(X \ge E[X] + \lambda) &\le \left(\left(1 + \frac{\lambda}{\sigma^2}\right)^{-(1 + \frac{\lambda}{\sigma^2})\frac{\sigma^2}{n + \sigma^2}} \left(1 - \frac{\lambda}{n}\right)^{-(1 - \frac{\lambda}{n})\frac{n}{n + \sigma^2}} \right)^n \\
+  &\le \exp\left(-\lambda\left(\left(1 + \frac{\sigma^2}{\lambda}\right)\ln\left(1 + \frac{\lambda}{\sigma^2}\right) - 1\right)\right) \\
+  &\le \exp\left(-\frac{\lambda^2}{2\sigma^2 + \frac{2}{3}\lambda}\right) \\
+  &\le \exp\left(-\frac{1}{3} \min\left\{ \frac{\lambda^2}{\delta^2}, \lambda\right\}\right).
+\end{align*}
+
+\section{Еще несколько неравенств}
+
+
+
 
 \end{document}
