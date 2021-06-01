@@ -1,0 +1,378 @@
+\documentclass[12pt]{article}
+
+\usepackage{a4wide}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[russian]{babel}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{pgfplots}
+\usepgfplotslibrary{statistics,patchplots}
+\usetikzlibrary{decorations.pathreplacing,calc,tikzmark, patterns,arrows.meta,snakes}
+\pgfmathdeclarefunction{gauss}{3}{%
+  \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1-#2)^2)/(2*#3^2))}%
+}
+\pgfmathdeclarefunction{gauss2d}{6}{%
+  \pgfmathparse{1/(#3*#6*2*pi)*exp(-((#1-#2)^2)/(2*#3^2) - ((#4-#5)^2)/(2*#6^2))}%
+}
+\pgfmathdeclarefunction{circle}{1}{%
+\pgfmathparse{2/pi*sqrt(1 - #1^2)}%
+}
+
+\usepackage{xspace}
+
+\usepackage{mathtools}
+\usepackage{cite}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{bbm}
+
+\newcommand\N{\mathbb{N}}
+\newcommand\R{\mathbb{R}}
+\newcommand\F{\mathcal{F}}
+\newcommand\eps{\varepsilon}
+\newcommand\one{\mathbbm{1}}
+\DeclareMathOperator{\Bin}{Bin}
+\DeclareMathOperator{\Geom}{Geom}
+\DeclareMathOperator{\Pois}{Poisson}
+\DeclareMathOperator{\pow}{pow}
+\DeclareMathOperator{\Bern}{Bern}
+\DeclareMathOperator{\Exp}{Exp}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\sign}{sign}
+
+\newtheorem{theorem}{Теорема}
+\newtheorem{lemma}{Лемма}
+
+\title{Лекция 16. Марковские процессы}
+
+\begin{document}
+\maketitle
+
+\section{Скорость сходимости}
+
+Рассмотрим пример двух марковских цепей:
+
+\begin{center}
+  \begin{tikzpicture}
+    \node (s1) [draw,circle] at (0, 0) {$1$};
+    \node (s2) [draw,circle] at (4, 0) {$2$};
+
+    \draw [ultra thick, ->] (s1) to[out=30,in=150] node [above] {$0.5$} (s2);
+    \draw [ultra thick, ->] (s2) to[out=-150,in=-30] node [below] {$0.2$} (s1);
+    
+    \draw [ultra thick, ->] (s1) to[out=120,in=180] (0, 2) to[out=0,in=60] (s1);
+    \node [above] at (0, 2) {$0.5$};
+    \draw [ultra thick, ->] (s2) to[out=120,in=180] (4, 2) to[out=0,in=60] (s2);
+    \node [above] at (4, 2) {$0.8$};
+  \end{tikzpicture} \hspace{2cm}
+  \begin{tikzpicture}
+    \node (s1) [draw,circle] at (0, 0) {$1$};
+    \node (s2) [draw,circle] at (4, 0) {$2$};
+
+    \draw [ultra thick, ->] (s1) to[out=30,in=150] node [above] {$0.005$} (s2);
+    \draw [ultra thick, ->] (s2) to[out=-150,in=-30] node [below] {$0.002$} (s1);
+    
+    \draw [ultra thick, ->] (s1) to[out=120,in=180] (0, 2) to[out=0,in=60] (s1);
+    \node [above] at (0, 2) {$0.995$};
+    \draw [ultra thick, ->] (s2) to[out=120,in=180] (4, 2) to[out=0,in=60] (s2);
+    \node [above] at (4, 2) {$0.998$};
+  \end{tikzpicture}
+\end{center}
+
+С помощью приема с приравниванием частот переходов влево и вправо, мы можем показать, что у обеих одно и то же стационарное распределение:
+\begin{align*}
+  \pi_1 \cdot 0.5 &= \pi_2 \cdot 0.2 \\
+  \pi_1 \cdot 0.005 &= \pi_2 \cdot 0.002, \\
+\end{align*}
+Откуда с учетом нормировки элементов $\pi$ мы находим $\pi = (\frac{2}{7}, \frac{5}{7})$. 
+
+Но насколько быстро мы сходимся к этому распределению? Можно ли сказать, что через 100 шагов мы будем близки к нему?
+
+Для ответа на этот вопрос сначала заметим, что скорость сходимости точно будет разной. Заметим, что в первой цепи мы перемещаемся между расстояниями довольно часто, два перемещения мы делаем ожидаемо за $\frac{1}{0.5} + \frac{1}{0.2} = 7$ шагов. То есть за $100$ мы сделаем что-то вроде 28 перемещений между состояниями. Это значит, что вероятностная масса довольно хорошо ``перемешается'' между состояниями цепи. Во второй же цепи мы едва ли сделаем одно перемещение, значит, за 100 шагов распределение будет примерно таким же, каким оно было в начале.
+
+Помашем руками чуть строже, чтобы понять, что происходит с распределением. Вспомним, что матрица переходов $P$ --- стохастическая. Если допустить, что у нас нет невозвратных состояний, то она еще и попадает под теорему Перрона-Фробениуса, из которой мы знаем, что ее самое большое по модулю собственное число равно единице и имеет одномерное собственное подпространство. Упорядочим в таком случае все собственные числа матрицы $P$ по модулю: 
+\begin{align*}
+  1 = \lambda_1 > \lambda_2 \ge \lambda_3 \ge \dots
+\end{align*}
+При этом если мы можем разложить вектор начального распределения по базису $\{e_1, e_2, \dots, e_m\}$ из собственных векторов матрицы $P$, где вектор $e_1 = \pi$, то можем заметить следующее: 
+\begin{align*}
+  \pi^* P^t = \sum_{i = 1}^m a_i \lambda_i^t e_i = \pi + \sum_{i = 1}^m a_i \lambda_i^t e_i.
+\end{align*}
+Так как все $|\lambda_{i > 1}| < 1$, то модуль каждого вектора в сумме падает как минимум пропорционально $\lambda_2^t$. Данные рассуждения можно расширить на матрицы с невозвратными состояниями. 
+
+Таким образом, мы можем увидеть, что сходимость к стационарному распределению происходит со скоростью $c^t$, где $c < 1$ и равна второму собственному числу матрицы $P$.
+
+
+\section{Необходимая пропускная способность сети}
+Следующая задача была сформулирована Эрлангом. Пусть у нас есть деревня, и мы хотим связать ее телефонной связью с внешним миром. Для этого нам надо провести в эту деревню $B$ линий связи. То есть одновремменно вести телефонный разговор с внешним миром смогут не более $B$ человек в деревне. При этом мы хотим выбрать число $B$ таким образом, чтобы оно не было слишком большим (так как дорого вести слишком много линий), но с другой стороны, мы не хотим, чтобы люди из деревни слишком часто не могли звонить из-за перегруженности линии.
+
+Для этого рассмотрим такую (несколько упрощенную по сравнению с реальным миром) модель. Пусть звонки, поступающие в деревню (или исходящие из нее) образуют собой процесс Пуассона с интенсивностью $\lambda$, и продолжительность каждого телефонного разговора следует экспоненциальному распредлелению $\Exp(\mu)$. Второе допущение грубовато, так как вероятность 1-2-секундного разговора меньше, чем вероятность, например, 10-11-секундного разговора в реальной жизни (ну или сколько там надо, чтобы понять, что хочет звонящий). но мы воспользуемся данным приближением. На самом деле, продолжительность звонка в реальном мире хорошо приближается распределением Эрланга.
+
+Для решения задачи выбора числа линий $B$ давайте разобъем время на маленькие промежутки длиной $\delta$. Тогда вероятность начала звонка в каждый момент времени будет примерно равна $\lambda \delta$. При этом вероятность окончания звонка зависит от того, сколько звонков одновременно сейчас идет. Вспомним пример с экспоненциальными лампочками. По аналогии представим кажздый звонок как процесс Пуассона с интенсивностью $\mu$, и будем считать, что звонок заканчивается при первом же событии в процессе. Если мы хотим узнать, когда закончится первый из $i$ звонков, мы можем слить эти процессы, получив процесс Пуассона с интенсивностью $i\mu$ и посчитать время первого события в нем. Таким образом, можно сказать, что вероятность, что какой-то звонок закончится через маленькой время $\delta$, примерно равна $i\mu\delta$.
+
+Теперь мы можем построить цепь Маркова, которая при достаточно малых $\delta$ неплохо приближает происходящее.
+
+\begin{center}
+  \begin{tikzpicture}
+    \node (s0) [draw, circle, minimum size=1cm] at (0, 0) {$0$};
+    \node (s1) [draw, circle, minimum size=1cm] at (2, 0) {$1$};
+    
+    \node at (3.5, 0) {\Huge{$\cdots$}};
+
+    \node (si1) [draw, circle, minimum size=1cm] at (5, 0) {\tiny{$i - 1$}};
+    \node (si) [draw, circle, minimum size=1cm] at (7, 0) {$i$};
+    
+    \node at (8.5, 0) {\Huge{$\cdots$}};
+
+    \node (sB1) [draw, circle, minimum size=1cm] at (10, 0) {\tiny{$B - 1$}};
+    \node (sB) [draw, circle, minimum size=1cm] at (12, 0) {$B$};
+    
+    \draw [->, thick] (s0) to[out=30,in=150] node [midway, above] {$\lambda\delta$} (s1);
+    \draw [->, thick] (s1) to[out=210,in=-30] node [midway, below] {$\mu\delta$}  (s0);
+    \draw [->, thick] (s0) to[out=120,in=180] (0, 1.5) to[out=0,in=60] (s0);
+    \draw [->, thick] (s1) to[out=120,in=180] (2, 1.5) to[out=0,in=60] (s1);
+    \draw [thick] (s1) to[out=30,in=180] (3, 0.4);
+    \draw [->, thick] (3, -0.4) to[out=180,in=-30] (s1);
+
+    \draw [->, thick] (si1) to[out=30,in=150] node [midway, above] {$\lambda\delta$} (si);
+    \draw [->, thick] (si) to[out=210,in=-30] node [midway, below] {$i\mu\delta$}  (si1);
+    \draw [->, thick] (si1) to[out=120,in=180] (5, 1.5) to[out=0,in=60] (si1);
+    \draw [->, thick] (si) to[out=120,in=180] (7, 1.5) to[out=0,in=60] (si);
+    \draw [thick] (si) to[out=30,in=180] (8, 0.4);
+    \draw [->, thick] (8, -0.4) to[out=180,in=-30] (si);
+    \draw [thick] (si1) to[out=-150,in=0] (4, -0.4);
+    \draw [->, thick] (4, 0.4) to[out=0,in=150] (si1);
+
+    \draw [->, thick] (sB1) to[out=30,in=150] node [midway, above] {$\lambda\delta$} (sB);
+    \draw [->, thick] (sB) to[out=210,in=-30] node [midway, below] {$B\mu\delta$}  (sB1);
+    \draw [->, thick] (sB1) to[out=120,in=180] (10, 1.5) to[out=0,in=60] (sB1);
+    \draw [->, thick] (sB) to[out=120,in=180] (12, 1.5) to[out=0,in=60] (sB);
+    \draw [thick] (sB1) to[out=-150,in=0] (9, -0.4);
+    \draw [->, thick] (9, 0.4) to[out=0,in=150] (sB1);
+  \end{tikzpicture}
+\end{center}
+
+По тому, что мы творили на прошлой паре, мы можем вычислить вектор $\pi$, к которому в долгосрочной перспективе сходится распределение в данной цепи. Это можно сделать по формуле:
+\begin{align*}
+  \pi_i = \pi_0 \prod_{j = 0}^i \frac{p_i}{q_i} =  \pi_0 \prod_{j = 0}^i \frac{\lambda \delta}{i \mu \delta} = \pi_0 \frac{\lambda^i}{\mu^i i!}
+\end{align*}
+При нормировке замечаем, что
+\begin{align*}
+  \pi_0 = \left(\sum_{i = 0}^B \frac{\lambda^i}{\mu^i i!}\right)^{-1} = f(B, \lambda/\mu).
+\end{align*}
+И теперь мы можем сказать, что вероятность того, что когда мы звоним, все линии заняты, равна $\pi_B$. 
+
+Рассмотрим пример с конкретными числами. Пусть $\lambda = 30$ звонков в минуту, а $\mu = \frac{1}{3}$, то есть средняя продолжительность звонка $3$ минуты. Рукомаханиями мы можем понять, что за время среднего звонка происходит 90 новых звонков, то есть в среднем у нас занято одновременно 90 линий. Но нам нужно больше линий, чем в среднем, иначе вероятность того, что все линии заняты будет достаточно велика. Если все точно посчитать, получим, что для того, чтобы $\pi_B \le 0.01$, нам надо
+\begin{align*}
+  \pi_B &\approx \pi_0 \frac{(\lambda/\mu)^B}{B!} \le 0.01, \\
+\end{align*} 
+что достигается при $B \ge 106$, что можно посчитать напрямую.
+
+\section{Поглощающие состояния}
+
+\emph{Поглощающими} называются возвратные состояния $i$, такие, что $p_{ii} = 1$. Можно воспринимать их как возвратные классы, состоящие только из одного состояния. 
+
+В цепях может быть несколько поглощающих состояний. В таком случае нас может интересовать вопрос, а кким именно мы поглотимся. Рассмотрим пример, в котором все возвратные классы тривиальны, то есть включают в себя ровно одно (поглощающее) состояние.
+
+\begin{center}
+  \begin{tikzpicture}
+    \node (s1) [draw, circle] at (0, 0) {$1$};
+    \node (s2) [draw, circle] at (2, 0) {$2$};
+    \node (s3) [draw, circle] at (0, 2) {$3$};
+    \node (s4) [draw, circle] at (3.5, 1.5) {$4$};
+    \node (s5) [draw, circle] at (1.5, 3.5) {$5$};
+
+    \draw [thick,->] (s1) to [bend left] node [above right] {\scriptsize{$0.6$}} (s2);
+    \draw [thick,->] (s2) to [bend left] node [below] {\scriptsize{$0.8$}} (s1);
+    \draw [thick,->] (s1) to [bend left] node [left] {\scriptsize{$0.4$}} (s3);
+    \draw [thick,->] (s3) to [bend left] node [above right] {\scriptsize{$0.5$}} (s1);
+    \draw [thick,->] (s3) to [bend left] node [above right] {\scriptsize{$0.3$}} (s2);
+
+    \draw [thick,->] (s2) -- node [below right] {\scriptsize{$0.2$}} (s4);
+    \draw [thick,->] (s3) -- node [below right] {\scriptsize{$0.2$}} (s5);
+
+
+    \draw [thick,->] (s5) to [out=-150,in=-90] (0, 3.5) to [out=90,in=150] (s5);
+    \node [left] at (0, 3.5) {$1$};
+    \draw [thick,->] (s4) to [out=120,in=180] (3.5, 3) to [out=0,in=60] (s4);
+    \node [above] at (3.5, 3) {$1$};
+  \end{tikzpicture}
+\end{center}
+
+В данной цепи есть два поглощающих состояния: $4$ и $5$. Как понять, в каком мы закончим? Это сильно зависит от того, в каком мы начнем. Например, начиная в состоянии $2$ у нас неплохой шанс перейти в состояние $4$, в то время как из состояния $3$ мы намного вероятнее преейдем в состояние $5$. Обозначим как $a_i$ вероятность того, что мы закончим в состоянии $4$, если начнем в состоянии $i$. По идее, это суммарная вероятность всех путей, ведущих из состояния $i$ в состояние $4$. Но с такой точки зрения ее очень сложно посчитать. Но можно посчитать с помощью формулы полной вероятности.
+
+Заметим, что вероятность $a_2$ --- это вероятность того, что мы перейдем прямо в состояние $4$ плюс вероятность того, что мы сначала перейдем в состояние $1$, а оттуда где-то в будщем попадем в $4$. Другимим словами,
+\begin{align*}
+  a_2 = 0.2 + 0.8 a_1.
+\end{align*}
+Повторив рассуждение для всех непоглощающих состояний получаем систему линейных уравнений
+\begin{align*}
+  a_i = \sum_{j = 1}^{m} p_{ij} a_j.
+\end{align*}
+
+\subsection{Время до поглощения}
+
+Как посчитать время до того, как мы будем поглощены каким-то состоянием? Вообще считать время до поглощения конкретным поглощающим состоянием --- это гиблое дело, так как есть ненулевая вероятность, что мы можем быть поглощены другим поглощающим состоянием, а значит, матожидание искомого времени есть бесконечность. Поэтому обычно нас интересует матожидание времени до того, как мы будем поглощены хоть каким-то поглощающим состоянием. Для этого мы можем объединить все поглощающие состояние в одно поглощающее мегасостояние, перекинув в него все соответствующие вероятности переходов. 
+
+\begin{center}
+  \begin{tikzpicture}
+    \node (s1) [draw, circle] at (0, 0) {$1$};
+    \node (s2) [draw, circle] at (2, 0) {$2$};
+    \node (s3) [draw, circle] at (0, 2) {$3$};
+    \node (s4) [draw, circle] at (3, 3) {$4, 5$};
+
+    \draw [thick,->] (s1) to [bend left] node [above right] {\scriptsize{$0.6$}} (s2);
+    \draw [thick,->] (s2) to [bend left] node [below] {\scriptsize{$0.8$}} (s1);
+    \draw [thick,->] (s1) to [bend left] node [left] {\scriptsize{$0.4$}} (s3);
+    \draw [thick,->] (s3) to [bend left] node [above right] {\scriptsize{$0.5$}} (s1);
+    \draw [thick,->] (s3) to [bend left] node [above right] {\scriptsize{$0.3$}} (s2);
+
+    \draw [thick,->] (s2) to[bend right] node [below right] {\scriptsize{$0.2$}} (s4);
+    \draw [thick,->] (s3) to[bend left] node [above left] {\scriptsize{$0.2$}} (s4);
+
+    \draw [thick,->] (s4) to [out=120,in=180] (3, 4.5) to [out=0,in=60] (s4);
+    \node [above] at (3, 4.5) {$1$};
+  \end{tikzpicture}
+\end{center}
+
+Посчитаем теперь время $T_i$ до того, как мы будем поглощены, если стартуем в состоянии $i$ на примере состояния $2$. Для этого воспользуемся формулой полного матожидания. с вероятностью $0.2$ мы поглотимся за 1 шаг, а с вероятностью $0.8$ мы перейдем в состояние 1 и нам надо будет еще ожидаемо столько же времени, как если бы мы начинали в состоянии $1$. Отсюда получаем:
+\begin{align*}
+  E[T_2] = 0.2 \cdot 1 + 0.8 (1 + E[T_1]).
+\end{align*}
+Повторив это для всех уравнений, получаем:
+\begin{align*}
+  E[T_i] = \sum_{j = 1}^m p_{ij} (1 + E[T_j]) = 1 + \sum_{j = 1}^m p_{ij} E[T_j]
+\end{align*}
+
+\subsection{Время ближайшего посещения возвратного состояния}.
+
+Допустим, нам интересно, как посчитать ближайшее время до того, как мы посетим какое-то возвратное состояние. Заметим, что эта задача имеет смысл только при наличии одного возвратного класса, так как иначе есть шанс, что мы закончим в другом классе, и тогда ожидаемое время будет бесконечностью. Например, на рисунке ниже мы хотим узнать, когда мы посетим состояние 2. 
+
+\begin{center}
+  \begin{tikzpicture}
+    \node (s1) [draw, circle] at (0, 0) {$1$};
+    \node (s2) [draw, circle] at (0, 3) {$2$};
+    \node (s3) [draw, circle] at (3, 3) {$3$};
+    \node (s4) [draw, circle] at (3, 0) {$4$};
+    \node (s5) [draw, circle] at (6, 3) {$5$};
+    \node (s6) [draw, circle] at (6, 0) {$6$};
+    
+    \draw [->, thick] (s5) -- (s3);
+    \draw [->, thick] (s4) -- (s1);
+    \draw [->, thick] (s4) -- (s5);
+    \draw [->, thick] (s5) -- (s6);
+
+    \draw [->, thick] (s1) to[out=120,in=-120] (s2);
+    \draw [->, ultra thick, purple] (s2) to[out=-60,in=60] (s1); 
+    \draw [->, thick] (s3) to[out=-150,in=-30] (s2);
+    \draw [->, ultra thick, purple] (s2) to[out=30,in=150] (s3); 
+    \draw [->, thick] (s6) to[out=-150,in=-30] (s4);
+    \draw [->, thick] (s4) to[out=30,in=150] (s6); 
+
+    
+    \draw [->, thick] (s2) to[out=-150,in=-90] (-2, 3) to[out=90,in=150] (s2);
+    \draw [->, thick] (s1) to[out=-150,in=-90] (-2, 0) to[out=90,in=150] (s1);
+  \end{tikzpicture}
+\end{center}
+
+Заметим, что презоды, исходящие из состояния 2 никогда не встретятся на наших путях до него. Поэтому достаточно перенаправить все эти переходы в само состояние 2, то есть сделать его поглощающим. Тогда чтобы посчитать время до ближайшего посещения этого состояния, нам надо всего лишь посчитать время до поглощения этим состоянием.
+\begin{center}
+  \begin{tikzpicture}
+    \node (s1) [draw, circle] at (0, 0) {$1$};
+    \node (s2) [draw, circle] at (0, 3) {$2$};
+    \node (s3) [draw, circle] at (3, 3) {$3$};
+    \node (s4) [draw, circle] at (3, 0) {$4$};
+    \node (s5) [draw, circle] at (6, 3) {$5$};
+    \node (s6) [draw, circle] at (6, 0) {$6$};
+    
+    \draw [->, thick] (s5) -- (s3);
+    \draw [->, thick] (s4) -- (s1);
+    \draw [->, thick] (s4) -- (s5);
+    \draw [->, thick] (s5) -- (s6);
+
+    \draw [->, thick] (s1) to[out=120,in=-120] (s2);
+    \draw [->, thick] (s2) to[out=-60,in=60] (s1); 
+    \draw [->, thick] (s3) to[out=-150,in=-30] (s2);
+    \draw [->, thick] (s2) to[out=30,in=150] (s3); 
+    \draw [->, thick] (s6) to[out=-150,in=-30] (s4);
+    \draw [->, thick] (s4) to[out=30,in=150] (s6); 
+
+    
+    \draw [->, thick] (s2) to[out=-150,in=-90] (-2, 3) to[out=90,in=150] (s2);
+    \draw [->, thick] (s1) to[out=-150,in=-90] (-2, 0) to[out=90,in=150] (s1);
+  \end{tikzpicture}
+\end{center}
+
+\subsection{Пример с игроком}
+
+Рассмотрим такую задачу. Игрок играет в честную игру, где вероятность выигрыша равна $0.5$ и каждый раз он делает ставку в 1 доллар. Он заканчивает игру, когда он разорится или когда у него будет $n$ долларов. Какова вероятность, что он закончит игру c $n$ долларами?
+
+Цепь Маркова, описывающая состояние игрока, выглядит так:
+
+\begin{center}
+  \begin{tikzpicture}
+    \node (s0) [draw, circle, minimum size=1cm] at (0, 0) {$0$};
+    \node (s1) [draw, circle, minimum size=1cm] at (2, 0) {$1$};
+    
+    \node at (3.5, 0) {\Huge{$\cdots$}};
+
+    \node (si1) [draw, circle, minimum size=1cm] at (5, 0) {\tiny{$i - 1$}};
+    \node (si) [draw, circle, minimum size=1cm] at (7, 0) {$i$};
+    
+    \node at (8.5, 0) {\Huge{$\cdots$}};
+
+    \node (sB1) [draw, circle, minimum size=1cm] at (10, 0) {\tiny{$n - 1$}};
+    \node (sB) [draw, circle, minimum size=1cm] at (12, 0) {$n$};
+    
+    \draw [->, thick] (s1) to[out=210,in=-30] node [midway, below] {$0.5$}  (s0);
+    \draw [->, thick] (s0) to[out=120,in=180] (0, 1.5) to[out=0,in=60] (s0);
+    \draw [thick] (s1) to[out=30,in=180] (3, 0.4);
+    \draw [->, thick] (3, -0.4) to[out=180,in=-30] (s1);
+
+    \draw [->, thick] (si1) to[out=30,in=150] node [midway, above] {$0.5$} (si);
+    \draw [->, thick] (si) to[out=210,in=-30] node [midway, below] {$0.5$}  (si1);
+    \draw [thick] (si) to[out=30,in=180] (8, 0.4);
+    \draw [->, thick] (8, -0.4) to[out=180,in=-30] (si);
+    \draw [thick] (si1) to[out=-150,in=0] (4, -0.4);
+    \draw [->, thick] (4, 0.4) to[out=0,in=150] (si1);
+
+    \draw [->, thick] (sB1) to[out=30,in=150] node [midway, above] {$0.5$} (sB);
+    \draw [->, thick] (sB) to[out=120,in=180] (12, 1.5) to[out=0,in=60] (sB);
+    \draw [thick] (sB1) to[out=-150,in=0] (9, -0.4);
+    \draw [->, thick] (9, 0.4) to[out=0,in=150] (sB1);
+  \end{tikzpicture}
+\end{center}
+
+Можно составить такую систему уравнений.
+\begin{align*}
+  \begin{cases}
+    a_0 &= 0 \\
+    a_n &= 1 \\
+    a_i &= 0.5 a_{i - 1} + 0.5 a_{i + 1} \\
+  \end{cases}
+\end{align*}
+
+Из соображений, что вероятности являются средними арифметическими своих соседей и что они растут от 0 до $n$, легко предположить и проверить, что $a_i = \frac{i}{n}$. То есть если мы начинаем игру с $i$ долларов в кармане, мы можем сказать, что вероятность заработать $n$ долларов есть $\frac{i}{n}$. Заметим, что это значит, что матожидание финального состояния игрока есть $0 \cdot (1 - \frac{i}{n}) + n \cdot \frac{i}{n} = i$. То есть причестной игре мы ожидаемо ничего не выиграем, сколько бы у нас ни было денег.
+
+Как долго мы будем в игре? Объединим поглощающие состояния и посчитаем матожидание до поглощения из системы уравнений.
+\begin{align*}
+  \begin{cases}
+    T_0 &= T_n = 0 \\
+    T_i &= 1 + 0.5 T_{i - 1} + 0.5 T_{i + 1} \\
+  \end{cases}
+\end{align*}
+Решением будет $T_i = i(n - i)$.
+
+Можем сделать все то же самое для нечестной игры, если вероятность выигрыша есть $p \ne 0.5$. Тогда обозначив $\rho = \frac{1 - p}{p}$, получим:
+\begin{align*}
+  a_i &= \frac{1 - r^i}{1 - r^n} \\
+  T_i &= \left(\frac{r + 1}{r - 1}\right) \left(i - n \frac{1 - r^i}{1 - r^n} \right).
+\end{align*}
+
+
+
+\end{document}
