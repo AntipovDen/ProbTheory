@@ -420,7 +420,7 @@
 
   \begin{align*}
     \Var(X) &= E[X^2] = \int_{-\infty}^{+\infty} x^2 \frac{1}{\sqrt{2\pi}}e^{-x^2/2} dx = \int_{-\infty}^{+\infty} x \frac{1}{\sqrt{2\pi}}e^{-x^2/2}d\frac{x^2}{2} \\
-            &= - \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{+\infty} x \frac{1}{\sqrt{2\pi}}e^{-x^2/2}de^{-x^2/2} \\
+            &= - \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{+\infty} x de^{-x^2/2} \\
             &= - \frac{1}{\sqrt{2\pi}} x e^{-x^2/2} \bigg|_{-\infty}^{+\infty} + \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{+\infty} e^{-x^2/2} dx \\
             &= 0 + \frac{\sqrt{2\pi}}{\sqrt{2\pi}} = 1.
   \end{align*}
